@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Λxiom 7 | Admin Control</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<style>
+		:root {
+			--bg-base: #050505; 
+			--bg-surface: #121214; 
+			--bg-surface-elevated: #1a1a1e;
+			--border-subtle: #27272a; 
+			--border-focus: #3f3f46;
+			--text-primary: #f4f4f5; 
+			--text-secondary: #a1a1aa; 
+			--text-tertiary: #71717a;
+			--accent: #ff8c00; 
+			--accent-glow: rgba(255, 140, 0, 0.25);
+			--danger: #ef4444; 
+			--success: #10b981; 
+			--info: #3b82f6;
+			--font-main: 'Inter', sans-serif; 
+			--font-display: 'Rajdhani', sans-serif;
+		}
+
+		* { 
+			margin: 0; 
+			padding: 0; 
+			box-sizing: border-box; 
+			-webkit-tap-highlight-color: transparent; 
+		}
+			
+		body { 
+			background-color: var(--bg-base); 
+			color: var(--text-primary); 
+			font-family: var(--font-main); 
+			overflow-x: hidden; 
+			line-height: 1.5;
+			-webkit-font-smoothing: antialiased; 
+			display: none; 
+			font-size: 0.9rem;
+		}
+			
+		.hidden { 
+			display: none !important; 
+		}
+
+		h1, h2, h3, .font-display { 
+			font-family: var(--font-display); 
+			text-transform: uppercase; 
+		}
+
+		@keyframes fadeIn { 
+			from { opacity: 0; } 
+			to { opacity: 1; } 
+		}
+
+		@keyframes fadeInSlide { 
+			from { opacity: 0; transform: translateY(15px); } 
+			to { opacity: 1; transform: translateY(0); } 
+		}
+
+		@keyframes pulseGlow { 
+			0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); transform: scale(1); } 
+			50% { filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.6)); transform: scale(1.05); } 
+		}
+
+		@keyframes slideUpFade { 
+			from { opacity: 0; transform: translateY(20px) scale(0.98); } 
+			to { opacity: 1; transform: translateY(0) scale(1); } 
+		}
+
+		@keyframes modalPop { 
+			from { transform: scale(0.9) translateY(10px); opacity: 0; } 
+			to { transform: scale(1) translateY(0); opacity: 1; } 
+		}
+
+		#toastContainer { 
+			position: fixed; 
+			bottom: 20px; 
+			left: 50%; 
+			transform: translateX(-50%); 
+			display: flex; 
+			flex-direction: column; 
+			gap: 8px; 
+			z-index: 9999; 
+			pointer-events: none; 
+			width: 90%; 
+			max-width: 400px; 
+		}
+
+		.toast { 
+			background: rgba(18, 18, 20, 0.95); 
+			backdrop-filter: blur(10px); 
+			border: 1px solid var(--border-subtle); 
+			color: var(--text-primary); 
+			padding: 12px 18px; 
+			border-radius: 8px; 
+			font-size: 0.85rem; 
+			font-weight: 600; 
+			box-shadow: 0 10px 25px rgba(0,0,0,0.8); 
+			transform: translateY(50px); 
+			opacity: 0; 
+			transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+			display: flex; 
+			align-items: center; 
+			gap: 10px; 
+			text-transform: uppercase; 
+			letter-spacing: 0.5px; 
+		}
+
+		.toast.show { 
+			transform: translateY(0); 
+			opacity: 1; 
+			pointer-events: auto; 
+		}
+
+		.toast.error { border-left: 3px solid var(--danger); }
+		.toast.success { border-left: 3px solid var(--success); }
+		.toast.warning { border-left: 3px solid var(--accent); }
+		.toast.info { border-left: 3px solid var(--info); }
+
+		nav { 
+			background: rgba(18, 18, 20, 0.9); 
+			backdrop-filter: blur(12px); 
+			padding: 10px 4%; 
+			display: flex; 
+			justify-content: space-between; 
+			align-items: center; 
+			border-bottom: 1px solid var(--border-subtle); 
+			position: sticky; 
+			top: 0; 
+			z-index: 100; 
+			flex-wrap: wrap; 
+			gap: 10px; 
+		}
+
+		.nav-brand { 
+			display: flex; 
+			align-items: center; 
+			gap: 12px; 
+			cursor: default; 
+			user-select: none; 
+		}
+
+		.nav-logo { 
+			height: 28px; 
+			border-radius: 4px; 
+			animation: pulseGlow 3s infinite; 
+		}
+
+		.nav-title { 
+			display: flex; 
+			align-items: center; 
+			font-size: 1.3rem; 
+			font-weight: 700; 
+			letter-spacing: 1px; 
+		}
+
+		.nav-title span { 
+			color: var(--accent); 
+			margin-left: 5px; 
+		}
+
+		.nav-menu { 
+			display: flex; 
+			gap: 5px; 
+			align-items: center; 
+			overflow-x: auto; 
+			scrollbar-width: none; 
+			flex-wrap: nowrap; 
+			padding-bottom: 2px;
+		}
+
+		.nav-menu::-webkit-scrollbar { 
+			display: none; 
+		}
+
+		.nav-item { 
+			background: transparent; 
+			border: 1px solid transparent; 
+			color: var(--text-secondary); 
+			font-size: 0.75rem; 
+			font-weight: 700; 
+			text-transform: uppercase; 
+			letter-spacing: 1px; 
+			cursor: pointer; 
+			transition: 0.3s; 
+			padding: 8px 12px; 
+			border-radius: 6px; 
+			white-space: nowrap; 
+		}
+
+		.nav-item:hover { 
+			background: var(--bg-surface-elevated); 
+			color: var(--text-primary); 
+		}
+
+		.nav-item.active { 
+			background: rgba(255, 140, 0, 0.1); 
+			border-color: var(--accent); 
+			color: var(--accent); 
+		}
+
+		.btn-logout { 
+			background: transparent; 
+			border: none; 
+			color: var(--text-secondary); 
+			cursor: pointer; 
+			font-size: 1.1rem; 
+			transition: 0.3s; 
+			padding: 8px; 
+			margin-left: 5px; 
+		}
+
+		.btn-logout:hover { 
+			color: var(--danger); 
+			transform: scale(1.1); 
+		}
+
+		.container { 
+			max-width: 1200px; 
+			margin: 0 auto; 
+			padding: 30px 4%; 
+			min-height: 80vh; 
+		}
+
+		.section { 
+			display: none; 
+			opacity: 0; 
+			animation: fadeInSlide 0.4s ease forwards; 
+		}
+
+		.section.active { 
+			display: block; 
+		}
+
+		.page-header { 
+			margin-bottom: 25px; 
+			border-bottom: 1px solid var(--border-subtle); 
+			padding-bottom: 15px; 
+		}
+
+		.page-header h1 { 
+			font-size: clamp(1.5rem, 3vw, 2.2rem); 
+			font-weight: 800; 
+			letter-spacing: 1px; 
+			line-height: 1.1; 
+		}
+
+		.page-header p { 
+			color: var(--accent); 
+			font-weight: 600; 
+			font-size: 0.8rem; 
+			letter-spacing: 1.5px; 
+			text-transform: uppercase; 
+			margin-top: 5px; 
+		}
+
+		.filter-bar { 
+			display: flex; 
+			gap: 10px; 
+			margin-bottom: 20px; 
+			flex-wrap: wrap; 
+		}
+
+		input[type="text"], input[type="email"], input[type="number"], select { 
+			padding: 10px 12px; 
+			background: var(--bg-surface); 
+			border: 1px solid var(--border-subtle); 
+			color: var(--text-primary); 
+			border-radius: 6px; 
+			outline: none; 
+			transition: 0.3s; 
+			font-family: var(--font-main); 
+			font-size: 0.85rem; 
+			width: 100%; 
+		}
+
+		input:focus, select:focus { 
+			border-color: var(--accent); 
+			box-shadow: 0 0 8px var(--accent-glow); 
+		}
+
+		.filter-bar input { 
+			max-width: 250px; 
+		}
+			
+		.input-fake { 
+			cursor: pointer; 
+			text-align: left; 
+			background: var(--bg-surface); 
+			font-weight: 600; 
+			display: flex; 
+			justify-content: space-between; 
+			align-items: center; 
+			border: 1px solid var(--border-subtle); 
+			padding: 10px 12px; 
+			border-radius: 6px; 
+			transition: 0.3s; 
+		}
+
+		.input-fake:hover { 
+			border-color: var(--accent); 
+			background: var(--bg-surface-elevated); 
+		}
+
+		.input-fake i { 
+			color: var(--accent); 
+		}
+
+		.grid { 
+			display: grid; 
+			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+			gap: 15px; 
+		}
+
+		.admin-card { 
+			background: var(--bg-surface); 
+			border-radius: 8px; 
+			border: 1px solid var(--border-subtle); 
+			padding: 18px; 
+			transition: 0.3s; 
+			position: relative; 
+			opacity: 0; 
+			animation: slideUpFade 0.5s ease forwards; 
+			display: flex; 
+			flex-direction: column; 
+			justify-content: space-between; 
+		}
+
+		.admin-card:hover { 
+			border-color: var(--border-focus); 
+			transform: translateY(-3px); 
+			box-shadow: 0 10px 20px rgba(0,0,0,0.4); 
+		}
+			
+		.card-top { 
+			margin-bottom: 15px; 
+		}
+
+		.ign { 
+			font-size: 1.4rem; 
+			font-weight: 800; 
+			line-height: 1; 
+			margin-bottom: 5px; 
+			word-break: break-all; 
+		}
+
+		.email-text { 
+			font-size: 0.75rem; 
+			color: var(--text-tertiary); 
+			font-weight: 600; 
+			margin-bottom: 10px; 
+			display: block; 
+		}
+			
+		.badges { 
+			display: flex; 
+			flex-wrap: wrap; 
+			gap: 5px; 
+			align-items: center; 
+		}
+
+		.role-badge, .region-badge { 
+			background: var(--bg-surface-elevated); 
+			padding: 3px 8px; 
+			border-radius: 4px; 
+			font-size: 0.6rem; 
+			font-weight: 700; 
+			color: var(--text-secondary); 
+			text-transform: uppercase; 
+			letter-spacing: 0.5px; 
+			border: 1px solid var(--border-subtle); 
+		}
+
+		.role-badge.badge-dev { 
+			background: rgba(239, 68, 68, 0.1); 
+			color: #ff6b6b; 
+			border-color: rgba(239, 68, 68, 0.4); 
+		}
+
+		.role-badge.badge-admin { 
+			background: rgba(59, 130, 246, 0.1); 
+			color: #60a5fa; 
+			border-color: rgba(59, 130, 246, 0.4); 
+		}
+
+		.card-actions { 
+			display: flex; 
+			gap: 8px; 
+			border-top: 1px solid var(--border-subtle); 
+			padding-top: 12px; 
+		}
+
+		.btn { 
+			flex: 1; 
+			padding: 8px 12px; 
+			border-radius: 6px; 
+			font-weight: 700; 
+			font-size: 0.75rem; 
+			text-transform: uppercase; 
+			letter-spacing: 1px; 
+			cursor: pointer; 
+			transition: 0.3s; 
+			font-family: var(--font-display); 
+			display: flex; 
+			align-items: center; 
+			justify-content: center; 
+			gap: 6px; 
+			border: 1px solid transparent; 
+		}
+
+		.btn-green { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--success); }
+		.btn-green:hover { background: var(--success); color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+		
+		.btn-red { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--danger); }
+		.btn-red:hover { background: var(--danger); color: #fff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+		
+		.btn-blue { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: var(--info); }
+		.btn-blue:hover { background: var(--info); color: #fff; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+		
+		.btn-orange { background: rgba(255, 140, 0, 0.1); border-color: rgba(255, 140, 0, 0.3); color: var(--accent); }
+		.btn-orange:hover { background: var(--accent); color: #000; box-shadow: 0 0 10px rgba(255, 140, 0, 0.4); }
+		
+		.btn-large { 
+			padding: 12px 24px; 
+			font-size: 0.9rem; 
+		}
+
+		.modal-overlay { 
+			position: fixed; 
+			top: 0; 
+			left: 0; 
+			width: 100%; 
+			height: 100%; 
+			background: rgba(0, 0, 0, 0.85); 
+			backdrop-filter: blur(5px); 
+			z-index: 1000; 
+			display: flex; 
+			justify-content: center; 
+			align-items: center; 
+			opacity: 0; 
+			pointer-events: none; 
+			transition: opacity 0.3s ease; 
+			padding: 15px; 
+		}
+
+		.modal-overlay.active { 
+			opacity: 1; 
+			pointer-events: auto; 
+		}
+
+		.modal-content { 
+			background: var(--bg-surface); 
+			border: 1px solid var(--border-subtle); 
+			width: 100%; 
+			max-width: 400px; 
+			border-radius: 10px; 
+			padding: 25px; 
+			position: relative; 
+			box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
+			display: flex; 
+			flex-direction: column; 
+			max-height: 90vh; 
+		}
+
+		.modal-overlay.active .modal-content { 
+			animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+		}
+
+		.modal-close { 
+			position: absolute; 
+			top: 15px; 
+			right: 15px; 
+			background: none; 
+			border: none; 
+			color: var(--text-tertiary); 
+			font-size: 1.2rem; 
+			cursor: pointer; 
+			transition: 0.2s; 
+		}
+
+		.modal-close:hover { 
+			color: var(--danger); 
+			transform: rotate(90deg); 
+		}
+
+		.modal-body { 
+			overflow-y: auto; 
+			padding-right: 5px; 
+			margin-top: 15px; 
+			display: flex; 
+			flex-direction: column; 
+			gap: 8px; 
+			scrollbar-width: thin; 
+			scrollbar-color: var(--border-focus) var(--bg-surface); 
+		}
+
+		.modal-body::-webkit-scrollbar { 
+			width: 6px; 
+		}
+
+		.modal-body::-webkit-scrollbar-thumb { 
+			background: var(--border-focus); 
+			border-radius: 4px; 
+		}
+
+		.list-item { 
+			padding: 12px; 
+			border: 1px solid var(--border-subtle); 
+			border-radius: 6px; 
+			cursor: pointer; 
+			transition: 0.2s; 
+			background: var(--bg-surface-elevated); 
+			display: flex; 
+			justify-content: space-between; 
+			align-items: center; 
+		}
+
+		.list-item:hover { 
+			border-color: var(--accent); 
+			transform: translateX(4px); 
+			background: rgba(255,140,0,0.05); 
+		}
+
+		.list-item-title { 
+			font-weight: 700; 
+			font-size: 0.9rem; 
+		}
+
+		.list-item-sub { 
+			font-size: 0.7rem; 
+			color: var(--text-tertiary); 
+		}
+
+		.stat-input-group { 
+			margin-bottom: 10px; 
+			display: flex; 
+			align-items: center; 
+			gap: 10px; 
+			background: var(--bg-surface-elevated); 
+			padding: 8px 12px; 
+			border-radius: 6px; 
+			border: 1px solid var(--border-subtle); 
+		}
+
+		.stat-input-group label { 
+			flex: 1; 
+			font-size: 0.75rem; 
+			font-weight: 700; 
+			color: var(--text-secondary); 
+			text-transform: uppercase; 
+			letter-spacing: 1px; 
+		}
+
+		.stat-input-group input[type="number"] { 
+			width: 70px; 
+			padding: 6px; 
+			background: var(--bg-base); 
+			border: 1px solid var(--border-subtle); 
+			color: var(--accent); 
+			font-family: var(--font-display); 
+			font-size: 1.1rem; 
+			font-weight: bold; 
+			text-align: center; 
+			border-radius: 4px; 
+		}
+
+		.form-container { 
+			background: var(--bg-surface); 
+			padding: 20px; 
+			border-radius: 8px; 
+			max-width: 500px; 
+			border: 1px solid var(--border-subtle); 
+			margin-bottom: 25px; 
+		}
+
+		.input-group { 
+			margin-bottom: 15px; 
+			display: flex; 
+			flex-direction: column; 
+			gap: 6px; 
+		}
+
+		.form-label { 
+			font-size: 0.75rem; 
+			font-weight: 700; 
+			color: var(--text-secondary); 
+			text-transform: uppercase; 
+			letter-spacing: 0.5px; 
+		}
+			
+		.action-row { 
+			display: flex; 
+			justify-content: space-between; 
+			align-items: center; 
+			padding: 10px 15px; 
+			background: var(--bg-surface-elevated); 
+			border: 1px solid var(--border-subtle); 
+			border-radius: 6px; 
+			margin-bottom: 8px; 
+			transition: 0.2s; 
+		}
+
+		.action-row:hover { 
+			border-color: var(--accent); 
+		}
+
+		.action-info { 
+			display: flex; 
+			flex-direction: column; 
+		}
+
+		.action-name { 
+			font-weight: 700; 
+			font-size: 0.9rem; 
+		}
+
+		.action-pts { 
+			font-size: 0.75rem; 
+			color: var(--accent); 
+			font-weight: 800; 
+		}
+
+		.action-pts.negative { 
+			color: var(--danger); 
+		}
+
+		.action-counter-group { 
+			display: flex; 
+			align-items: center; 
+			gap: 10px; 
+		}
+
+		.action-counter-group button { 
+			width: 32px; 
+			height: 32px; 
+			border-radius: 6px; 
+			border: none; 
+			font-weight: bold; 
+			font-size: 1.1rem; 
+			cursor: pointer; 
+			display: flex; 
+			align-items: center; 
+			justify-content: center; 
+			background: var(--border-focus); 
+			color: var(--text-primary); 
+			transition: 0.2s;
+		}
+
+		.action-counter-group button:hover { 
+			background: var(--accent); 
+			color: #000; 
+		}
+
+		.action-counter-group input { 
+			width: 40px; 
+			text-align: center; 
+			background: transparent; 
+			border: none; 
+			color: var(--text-primary); 
+			font-weight: bold; 
+			font-family: var(--font-display); 
+			font-size: 1.2rem; 
+			padding: 0; 
+			outline: none; 
+		}
+
+		.category-title { 
+			font-size: 0.75rem; 
+			font-weight: 800; 
+			color: var(--text-tertiary); 
+			text-transform: uppercase; 
+			margin: 15px 0 8px 0; 
+			border-bottom: 1px solid var(--border-subtle); 
+			padding-bottom: 4px; 
+		}
+
+		.rulebook-editor { 
+			width: 100%; 
+			min-height: 400px; 
+			background: var(--bg-surface-elevated); 
+			border: 1px solid var(--border-subtle); 
+			color: var(--text-primary); 
+			padding: 15px; 
+			border-radius: 6px; 
+			font-family: var(--font-main); 
+			resize: vertical; 
+			line-height: 1.6; 
+			font-size: 0.85rem; 
+			margin-bottom: 15px; 
+		}
+
+		.empty-state { 
+			text-align: center; 
+			padding: 30px; 
+			color: var(--text-tertiary); 
+			font-weight: 600; 
+			grid-column: 1 / -1; 
+			font-size: 0.85rem; 
+		}
+
+		.reset-box { 
+			text-align: center; 
+			padding: 25px; 
+			border: 1px dashed var(--danger); 
+			border-radius: 8px; 
+			background: rgba(239, 68, 68, 0.05); 
+			margin-top: 15px; 
+		}
+
+		.reset-box p { 
+			color: var(--text-secondary); 
+			margin-bottom: 15px; 
+			font-size: 0.8rem; 
+		}
+
+		.guide-box { 
+			background: var(--bg-surface-elevated); 
+			border: 1px solid var(--border-subtle); 
+			border-radius: 8px; 
+			padding: 15px; 
+			margin-bottom: 15px; 
+			border-left: 3px solid var(--accent); 
+		}
+
+		.guide-box h3 { 
+			font-size: 1.1rem; 
+			color: var(--accent); 
+			margin-bottom: 5px; 
+		}
+
+		.guide-box p { 
+			font-size: 0.85rem; 
+			color: var(--text-secondary); 
+			line-height: 1.5; 
+		}
+
+		.log-item { 
+			background: var(--bg-surface-elevated); 
+			border: 1px solid var(--border-subtle); 
+			border-left: 4px solid var(--accent); 
+			padding: 12px 15px; 
+			border-radius: 6px; 
+			margin-bottom: 10px; 
+			display: flex; 
+			flex-direction: column; 
+			gap: 5px; 
+		}
+
+		.log-header { 
+			display: flex; 
+			justify-content: space-between; 
+			align-items: center; 
+			border-bottom: 1px solid var(--border-focus); 
+			padding-bottom: 5px; 
+		}
+
+		.log-action { 
+			font-family: var(--font-display); 
+			font-weight: 800; 
+			font-size: 1rem; 
+			color: var(--text-primary); 
+			text-transform: uppercase; 
+		}
+
+		.log-time { 
+			font-size: 0.7rem; 
+			color: var(--text-tertiary); 
+			font-weight: 700; 
+		}
+
+		.log-details { 
+			font-size: 0.85rem; 
+			color: var(--text-secondary); 
+		}
+
+		.log-admin { 
+			font-size: 0.7rem; 
+			color: var(--info); 
+			font-weight: 700; 
+			display: inline-flex; 
+			align-items: center; 
+			gap: 5px; 
+		}
+
+		#exportTemplate { 
+			width: 800px; 
+			padding: 40px; 
+			background: radial-gradient(circle at center, #1a1a1e 0%, #050505 100%); 
+			color: #f4f4f5; 
+			font-family: 'Inter', sans-serif; 
+			box-sizing: border-box; 
+		}
+
+		.exp-header { 
+			text-align: center; 
+			margin-bottom: 30px; 
+			border-bottom: 2px solid #27272a; 
+			padding-bottom: 20px; 
+		}
+
+		.exp-title { 
+			font-family: 'Rajdhani', sans-serif; 
+			font-size: 4rem; 
+			font-weight: 800; 
+			color: #ff8c00; 
+			line-height: 1; 
+			text-transform: uppercase; 
+			text-shadow: 0 0 20px rgba(255,140,0,0.5); 
+			margin-bottom: 5px; 
+		}
+
+		.exp-sub { 
+			font-size: 1.2rem; 
+			font-weight: 700; 
+			color: #a1a1aa; 
+			letter-spacing: 4px; 
+			text-transform: uppercase; 
+		}
+
+		.exp-row { 
+			display: flex; 
+			align-items: center; 
+			background: #121214; 
+			border: 1px solid #27272a; 
+			border-radius: 12px; 
+			padding: 15px 20px; 
+			margin-bottom: 10px; 
+			box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+		}
+
+		.exp-rank { 
+			font-family: 'Rajdhani', sans-serif; 
+			font-size: 2.5rem; 
+			font-weight: 800; 
+			width: 60px; 
+			text-align: center; 
+		}
+
+		.exp-rank-1 { color: #fbbf24; text-shadow: 0 0 15px rgba(251,191,36,0.4); }
+		.exp-rank-2 { color: #e4e4e7; }
+		.exp-rank-3 { color: #b45309; }
+		.exp-rank-other { color: #71717a; }
+
+		.exp-info { 
+			flex: 1; 
+			padding-left: 20px; 
+		}
+
+		.exp-name { 
+			font-family: 'Rajdhani', sans-serif; 
+			font-size: 2rem; 
+			font-weight: 800; 
+			color: #fff; 
+			line-height: 1.1; 
+			text-transform: uppercase; 
+		}
+
+		.exp-role { 
+			font-size: 0.9rem; 
+			color: #a1a1aa; 
+			font-weight: 700; 
+			text-transform: uppercase; 
+			letter-spacing: 1px; 
+			margin-top: 5px; 
+			display: inline-block; 
+			background: #1a1a1e; 
+			padding: 4px 10px; 
+			border-radius: 4px; 
+			border: 1px solid #3f3f46; 
+		}
+
+		.exp-score-box { 
+			text-align: right; 
+		}
+
+		.exp-score-label { 
+			font-size: 0.8rem; 
+			font-weight: 800; 
+			color: #71717a; 
+			text-transform: uppercase; 
+			letter-spacing: 1px; 
+			display: block; 
+		}
+
+		.exp-score-val { 
+			font-family: 'Rajdhani', sans-serif; 
+			font-size: 3rem; 
+			font-weight: 800; 
+			color: #ff8c00; 
+			line-height: 1; 
+		}
+
+		.exp-footer { 
+			text-align: center; 
+			margin-top: 30px; 
+			font-size: 0.9rem; 
+			color: #71717a; 
+			font-weight: 700; 
+			text-transform: uppercase; 
+			letter-spacing: 2px; 
+		}
+
+		@media (max-width: 768px) {
+			nav { 
+				flex-direction: column; 
+				align-items: flex-start; 
+				padding: 15px; 
+			}
+			.nav-menu { 
+				width: 100%; 
+				justify-content: flex-start; 
+				padding-bottom: 5px; 
+			}
+		}
+	</style>
+</head>
+<body>
+	<div id="toastContainer"></div>
+
+	<div id="exportWrapper" style="position: fixed; top: -10000px; left: -10000px; z-index: -9999;">
+		<div id="exportTemplate">
+			<div class="exp-header">
+				<div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 5px;">
+					<img src="https://rep6se.github.io/logo.png" style="height: 55px; width: auto;" alt="">
+					<div class="exp-title" style="margin-bottom: 0;">ΛXIOM 7</div>
+				</div>
+				<div class="exp-sub">Weekly Leaderboard</div>
+			</div>
+			<div id="exportList"></div>
+		</div>
+	</div>
+
+	<div class="modal-overlay" id="confirmModal">
+		<div class="modal-content" style="max-width: 350px; text-align: center; padding: 30px 20px;">
+			<i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i>
+			<h3 class="font-display" id="confirmTitle" style="font-size: 1.5rem; margin-bottom: 10px;">Confirm Action</h3>
+			<p id="confirmMsg" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 25px;">Are you sure?</p>
+			<div style="display: flex; gap: 10px;">
+				<button class="btn" style="background: var(--bg-surface-elevated); color: var(--text-primary); border: 1px solid var(--border-subtle);" onclick="closeConfirmModal()">Cancel</button>
+				<button class="btn btn-red" id="confirmBtn" onclick="executeConfirm()">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-overlay" id="playerSelectModal" onclick="if(event.target === this) closePlayerSelectModal()">
+		<div class="modal-content">
+			<button class="modal-close" onclick="closePlayerSelectModal()"><i class="fa-solid fa-xmark"></i></button>
+			<h3 class="font-display" style="margin-bottom: 15px; font-size: 1.3rem;">Select Player</h3>
+			<input type="text" id="playerSearchInput" placeholder="Search IGN..." oninput="renderPlayerModalList()">
+			<div class="modal-body" id="playerSelectList"></div>
+		</div>
+	</div>
+
+	<div class="modal-overlay" id="filterRegionModal" onclick="if(event.target === this) closeFilterRegionModal()">
+		<div class="modal-content" style="max-width: 300px;">
+			<button class="modal-close" onclick="closeFilterRegionModal()"><i class="fa-solid fa-xmark"></i></button>
+			<h3 class="font-display" style="margin-bottom: 15px; font-size: 1.3rem;">Filter Region</h3>
+			<div class="modal-body">
+				<div class="list-item" onclick="selectFilterRegion('All')">
+					<div style="display:flex; gap:10px; align-items:center;">
+						<i class="fa-solid fa-globe" style="color:var(--accent)"></i><span>All Regions</span>
+					</div>
+				</div>
+				<div class="list-item" onclick="selectFilterRegion('Asia')">
+					<div style="display:flex; gap:10px; align-items:center;">
+						<i class="fa-solid fa-earth-asia" style="color:var(--accent)"></i><span>Asia</span>
+					</div>
+				</div>
+				<div class="list-item" onclick="selectFilterRegion('Europe')">
+					<div style="display:flex; gap:10px; align-items:center;">
+						<i class="fa-solid fa-earth-europe" style="color:var(--accent)"></i><span>Europe</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal()">
+		<div class="modal-content">
+			<button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
+			<div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 15px;">
+				<h2 class="font-display" style="font-size: 1.5rem; color: var(--accent); line-height: 1;" id="editModalName">PLAYER NAME</h2>
+				<span style="font-size: 0.65rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Update Player Data</span>
+			</div>
+
+			<div class="input-group">
+				<label class="form-label">Server Region</label>
+				<div class="input-fake" onclick="openEditRegionModal()">
+					<span id="editRegionDisplay">Asia</span>
+					<i class="fa-solid fa-chevron-down"></i>
+				</div>
+				<input type="hidden" id="editRegion" value="">
+			</div>
+
+			<div style="margin: 10px 0 5px 0; font-size: 0.65rem; font-weight: bold; color: var(--text-tertiary); text-transform: uppercase; display: flex; justify-content: space-between;">
+				<span>Raw Points</span><span style="color: var(--accent);">Max 200</span>
+			</div>
+
+			<div class="stat-input-group"><label>Pure Skill (PS)</label><input type="number" id="inputPS" min="0" max="200" value="0"></div>
+			<div class="stat-input-group"><label>Intellect (I)</label><input type="number" id="inputI" min="0" max="200" value="0"></div>
+			<div class="stat-input-group"><label>Offense (O)</label><input type="number" id="inputO" min="0" max="200" value="0"></div>
+			<div class="stat-input-group"><label>Defense (D)</label><input type="number" id="inputD" min="0" max="200" value="0"></div>
+			<div class="stat-input-group"><label>Goalkeeping (GK)</label><input type="number" id="inputGK" min="0" max="200" value="0"></div>
+
+			<button class="btn btn-orange" style="width: 100%; margin-top: 10px; padding: 10px;" onclick="savePlayerStats()"><i class="fa-solid fa-arrows-rotate"></i> Update & Recalculate</button>
+		</div>
+	</div>
+
+	<div class="modal-overlay" id="editRegionModal" onclick="if(event.target === this) closeEditRegionModal()">
+		<div class="modal-content" style="max-width: 300px; z-index: 1001;">
+			<button class="modal-close" onclick="closeEditRegionModal()"><i class="fa-solid fa-xmark"></i></button>
+			<h3 class="font-display" style="margin-bottom: 15px; font-size: 1.3rem;">Select Region</h3>
+			<div class="modal-body">
+				<div class="list-item" onclick="selectRegion('Asia')">
+					<div style="display:flex; gap:10px; align-items:center;">
+						<i class="fa-solid fa-earth-asia" style="color:var(--accent)"></i><span>Asia</span>
+					</div>
+				</div>
+				<div class="list-item" onclick="selectRegion('Europe')">
+					<div style="display:flex; gap:10px; align-items:center;">
+						<i class="fa-solid fa-earth-europe" style="color:var(--accent)"></i><span>Europe</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<nav id="mainNav">
+		<div class="nav-brand">
+			<img src="https://rep6se.github.io/logo.png" alt="" class="nav-logo">
+			<div class="nav-title font-display">ΛXIOM <span>7</span></div>
+		</div>
+		<div class="nav-menu">
+			<button class="nav-item active" onclick="showSection('requests', this)">Approvals</button>
+			<button class="nav-item" onclick="showSection('players', this)">Players DB</button>
+			<button class="nav-item" onclick="showSection('matchLogger', this)">Match Logger</button>
+			<button class="nav-item" onclick="showSection('seasonReset', this)">Season</button>
+			<button class="nav-item" onclick="showSection('rulebook', this)">Rulebook</button>
+			<button class="nav-item" id="adminTabBtn" onclick="showSection('admins', this)">Admins</button>
+			<button class="nav-item" onclick="showSection('adminLogs', this)">Logs</button>
+			<button class="nav-item" onclick="showSection('guide', this)"><i class="fa-solid fa-circle-question"></i> Guide</button>
+			<button class="btn-logout" onclick="handleLogout()"><i class="fa-solid fa-power-off"></i></button>
+		</div>
+	</nav>
+
+	<div class="container">
+		
+		<div id="requests" class="section active">
+			<div class="page-header">
+				<h1 class="font-display">Council Queue</h1>
+				<p>Pending Players Applications</p>
+			</div>
+			<div class="grid" id="reqGrid">
+				<div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+			</div>
+		</div>
+
+		<div id="players" class="section">
+			<div class="page-header">
+				<h1 class="font-display">Database Control</h1>
+				<p>Live Players Management</p>
+			</div>
+			
+			<div class="filter-bar">
+				<input type="text" id="searchInput" placeholder="Search IGN..." oninput="renderPlayers()">
+				<div class="input-fake" style="width: 200px;" onclick="openFilterRegionModal()">
+					<span id="filterRegionDisplay">All Regions</span>
+					<i class="fa-solid fa-chevron-down"></i>
+				</div>
+				<input type="hidden" id="filterRegion" value="All">
+			</div>
+
+			<div class="grid" id="playerGrid">
+				<div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+			</div>
+		</div>
+
+		<div id="matchLogger" class="section">
+			<div class="page-header">
+				<h1 class="font-display">Match Logger</h1>
+				<p>Apply Multiple In-Game Actions</p>
+			</div>
+			<div class="form-container" style="max-width: 600px;">
+				<div class="input-group">
+					<label class="form-label">Target Player</label>
+					<div class="input-fake" onclick="openPlayerSelectModal()">
+						<span id="logPlayerDisplay">Select a player...</span>
+						<i class="fa-solid fa-user-magnifying-glass"></i>
+					</div>
+					<input type="hidden" id="selectedLogPlayerUid" value="">
+				</div>
+				
+				<div id="matchLoggerActions" style="display: none; margin-top: 25px;">
+					<label class="form-label" style="display: block; margin-bottom: 10px;">Performances</label>
+					<div id="dynamicActionList"></div>
+					<button class="btn btn-blue" style="width: 100%; padding: 15px; margin-top: 20px; font-size: 1rem;" onclick="applyMatchAction()"><i class="fa-solid fa-check-double"></i> CONFIRM</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="seasonReset" class="section">
+			<div class="page-header">
+				<h1 class="font-display">Season Management</h1>
+			</div>
+			
+			<div class="form-container" style="max-width: 600px; margin-bottom: 25px;">
+				<h2 class="font-display" style="color: var(--accent); margin-bottom: 5px; font-size: 1.2rem;">Weekly Leaderboard Broadcast</h2>
+				<p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.85rem;">Automatically compile the top 20 player entities and deploy to the Axioma Server.</p>
+				<button class="btn btn-blue btn-large" style="width: 100%;" onclick="sendDiscordWebhook()"><i class="fa-brands fa-discord"></i> DISPATCH LEADERBOARD</button>
+			</div>
+
+			<div class="form-container" style="max-width: 600px;">
+				<h2 class="font-display" style="color: var(--accent); margin-bottom: 5px; font-size: 1.2rem;">Soft Reset Rule</h2>
+				<ul style="color: var(--text-secondary); margin-left: 20px; font-size: 0.85rem; line-height: 1.6;">
+					<li>Applies to ALL registered entities.</li>
+					<li>Subtracts exactly <strong>20 points</strong> from every skill.</li>
+					<li>Minimum point threshold is <strong>0</strong>.</li>
+					<li>Automatic recalculation post-reset.</li>
+				</ul>
+				<div class="reset-box">
+					<p><i class="fa-solid fa-triangle-exclamation"></i> Action cannot be undone.</p>
+					<button class="btn btn-red btn-large" style="margin: 0 auto;" onclick="initiateSoftReset()"><i class="fa-solid fa-skull"></i> EXECUTE SOFT RESET</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="rulebook" class="section">
+			<div class="page-header">
+				<h1 class="font-display">Rulebook</h1>
+				<p>Edit Active Rulebook</p>
+			</div>
+			<textarea id="rulebookInput" class="rulebook-editor" placeholder="Type rules here..."></textarea>
+			<button class="btn btn-orange" style="max-width: 200px;" onclick="saveRulebook()"><i class="fa-solid fa-floppy-disk"></i> Save </button>
+		</div>
+
+		<div id="admins" class="section">
+			<div class="page-header">
+				<h1 class="font-display">Administrators</h1>
+				<p>Level 7 Access</p>
+			</div>
+			<div class="form-container">
+				<div class="input-group">
+					<label class="form-label">Grant Override Access</label>
+					<div style="display: flex; gap: 10px;">
+						<input type="email" id="newAdminEmail" placeholder="Exact Email Address">
+						<button class="btn btn-blue" style="padding: 0 20px;" onclick="addAdmin()"><i class="fa-solid fa-shield-halved"></i></button>
+					</div>
+				</div>
+			</div>
+			<div class="grid" id="adminGrid">
+				<div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+			</div>
+		</div>
+
+		<div id="adminLogs" class="section">
+			<div class="page-header">
+				<h1 class="font-display">System Logs</h1>
+				<p>Audit Trail of Actions</p>
+			</div>
+			<div id="logsContainer" style="max-width: 900px; margin: 0 auto;">
+				<div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading logs...</div>
+			</div>
+		</div>
+
+		<div id="guide" class="section">
+			<div class="page-header">
+				<h1 class="font-display">System Guide</h1>
+				<p>Operational Manual</p>
+			</div>
+			<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+				<div class="guide-box">
+					<h3>Approvals</h3>
+					<p>Manage new player registrations. Approving a player sets their base stats to Tier 1 and calculates their initial ΛPI to 5.</p>
+				</div>
+				<div class="guide-box">
+					<h3>Player DB</h3>
+					<p>View, search, and edit all active players. Click 'Edit' to manually adjust raw points (PS, I, O, D, GK) up to a maximum of 200. Titles and Roles auto-update.</p>
+				</div>
+				<div class="guide-box">
+					<h3>Match Logger</h3>
+					<p>The core tool for admins during games. Select a player and efficiently log multiple actions at once (e.g. 2 Goals, 3 Saves). The system automatically calculates and updates their raw points.</p>
+				</div>
+				<div class="guide-box">
+					<h3>Season Reset</h3>
+					<p>Used only at the end of a season. It performs a 'Soft Reset', deducting 20 raw points from every stat of every player, mimicking skill degradation.</p>
+				</div>
+				<div class="guide-box">
+					<h3>Rulebook</h3>
+					<p>Update the public ruleboom.</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+		import { getDatabase, ref, onValue, set, remove, get, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+		import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+		const firebaseConfig = {
+			apiKey: "AIzaSyBXEN2pVF5A5rtXWKJ3I1QEFOheRvcyQiE",
+			databaseURL: "https://uetiers-default-rtdb.asia-southeast1.firebasedatabase.app/",
+			projectId: "uetiers"
+		};
+
+		const app = initializeApp(firebaseConfig);
+		const db = getDatabase(app);
+		const auth = getAuth(app);
+
+		let isSuperDev = false;
+		let currentUserEmail = "";
+		let playerDatabase = [];
+		let currentEditingUid = null;
+		let confirmCallback = null;
+
+		const matchActions = [
+			{ id: 'goal', cat: 'Offense (O)', name: 'Goal', stat: 'O', val: 5 },
+			{ id: 'miss', cat: 'Offense (O)', name: 'Miss', stat: 'O', val: -3 },
+			{ id: 'assist', cat: 'Intellect (I)', name: 'Assist', stat: 'I', val: 4 },
+			{ id: 'good_pass', cat: 'Intellect (I)', name: 'Good Pass', stat: 'I', val: 2 },
+			{ id: 'bad_pass', cat: 'Intellect (I)', name: 'Bad Pass', stat: 'I', val: -3 },
+			{ id: 'skilled_move', cat: 'Pure Skill (PS)', name: 'Skilled Move', stat: 'PS', val: 3 },
+			{ id: 'good_move', cat: 'Pure Skill (PS)', name: 'Good Move', stat: 'PS', val: 2 },
+			{ id: 'lost_ball', cat: 'Pure Skill (PS)', name: 'Lost Ball', stat: 'PS', val: -2 },
+			{ id: 'tackle', cat: 'Defense (D)', name: 'Tackle/Steal', stat: 'D', val: 3 },
+			{ id: 'bad_tackle', cat: 'Defense (D)', name: 'Bad Tackle', stat: 'D', val: -2 },
+			{ id: 'save', cat: 'Goalkeeping (GK)', name: 'Save', stat: 'GK', val: 1 },
+			{ id: 'conceded', cat: 'Goalkeeping (GK)', name: 'Conceded', stat: 'GK', val: -1 },
+			{ id: 'ballhog', cat: 'Penalties', name: 'Ballhog', stat: 'ALL', val: -5 },
+			{ id: 'mistakes', cat: 'Penalties', name: '3 Mistakes', stat: 'ALL', val: -3 }
+		];
+
+		window.showToast = (message, type = "success") => {
+			const container = document.getElementById("toastContainer");
+			const toast = document.createElement("div");
+			toast.className = `toast ${type}`;
+			let icon = type === 'success' ? '<i class="fa-solid fa-check"></i>' : type === 'error' ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-solid fa-circle-info"></i>';
+			toast.innerHTML = `${icon} <span>${message}</span>`;
+			container.appendChild(toast);
+			setTimeout(() => toast.classList.add("show"), 10);
+			setTimeout(() => { 
+				toast.classList.remove("show"); 
+				setTimeout(() => toast.remove(), 400); 
+			}, 3000);
+		};
+
+		window.showConfirm = (title, message, callback) => {
+			document.getElementById("confirmTitle").innerText = title;
+			document.getElementById("confirmMsg").innerText = message;
+			confirmCallback = callback;
+			document.getElementById("confirmModal").classList.add("active");
+		};
+
+		window.closeConfirmModal = () => {
+			document.getElementById("confirmModal").classList.remove("active");
+			confirmCallback = null;
+		};
+
+		window.executeConfirm = () => {
+			if(confirmCallback) confirmCallback();
+			closeConfirmModal();
+		};
+
+		window.showSection = (sectionId, btnElem) => {
+			if (sectionId === 'admins' && !isSuperDev) return showToast("Unauthorized access level.", "error");
+			document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+			setTimeout(() => { document.getElementById(sectionId).classList.add('active'); }, 50); 
+			document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+			if(btnElem) btnElem.classList.add('active');
+		};
+
+		async function logAdminActivity(action, details) {
+			if (!currentUserEmail) return;
+			const logRef = push(ref(db, 'system/logs'));
+			await set(logRef, {
+				email: currentUserEmail,
+				action: action,
+				details: details,
+				timestamp: Date.now()
+			});
+		}
+
+		function formatTime(ms) {
+			const d = new Date(ms);
+			return d.toLocaleString('en-US', { 
+				year: 'numeric', 
+				month: 'short', 
+				day: 'numeric', 
+				hour: '2-digit', 
+				minute:'2-digit', 
+				second:'2-digit' 
+			});
+		}
+
+		window.sendDiscordWebhook = async () => {
+			const webhookUrl = "https://discord.com/api/webhooks/1487561568693780684/G7PYkn2i_D3dd8JYVBzSY9W_0O6gEFUqJAsjy6nTT9pUU3-W190LU3dAXQRfwYDNbRn3";
+			
+			const sortedPlayers = [...playerDatabase].sort((a, b) => {
+				if (b.pi !== a.pi) return (b.pi || 0) - (a.pi || 0);
+				const totalB = (b.psPts || 0) + (b.iPts || 0) + (b.oPts || 0) + (b.dPts || 0) + (b.gkPts || 0);
+				const totalA = (a.psPts || 0) + (a.iPts || 0) + (a.oPts || 0) + (a.dPts || 0) + (a.gkPts || 0);
+				return totalB - totalA;
+			}).slice(0, 20);
+
+			if (sortedPlayers.length === 0) {
+				return showToast("No registered entities to broadcast.", "warning");
+			}
+
+			const listContainer = document.getElementById("exportList");
+			let htmlBuild = "";
+			
+			sortedPlayers.forEach((p, index) => {
+				let rankClass = "exp-rank-other";
+				if(index === 0) rankClass = "exp-rank-1";
+				else if(index === 1) rankClass = "exp-rank-2";
+				else if(index === 2) rankClass = "exp-rank-3";
+
+				htmlBuild += `
+				<div class="exp-row">
+					<div class="exp-rank ${rankClass}">#${index + 1}</div>
+					<div class="exp-info">
+						<div class="exp-name">${p.name}</div>
+						<div class="exp-role">${p.role || 'Unknown'} | ${p.region || 'N/A'}</div>
+					</div>
+					<div class="exp-score-box">
+						<span class="exp-score-label">ΛPI CORE</span>
+						<div class="exp-score-val">${p.pi || 5}</div>
+					</div>
+				</div>`;
+			});
+			
+			listContainer.innerHTML = htmlBuild;
+
+			const template = document.getElementById("exportTemplate");
+			
+			try {
+				showToast("Generating image...", "info");
+
+				const canvas = await html2canvas(template, { 
+					backgroundColor: "#050505", 
+					scale: 2,
+					useCORS: true,
+					onclone: (clonedDoc) => {
+						const clonedWrapper = clonedDoc.getElementById('exportWrapper');
+						if(clonedWrapper) {
+							clonedWrapper.style.position = 'absolute';
+							clonedWrapper.style.top = '0px';
+							clonedWrapper.style.left = '0px';
+						}
+					}
+				});
+				
+				const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+
+				const createFormData = () => {
+					const formData = new FormData();
+					formData.append("files[0]", blob, "leaderboard.png");
+					formData.append("payload_json", JSON.stringify({
+						username: "ΛXIOM 7", 
+						avatar_url: "https://rep6se.github.io/logo.png",
+						content: "**🏆 ΛXIOM 7 - WEEKLY LEADERBOARD HAS BEEN UPDATED!**\n || @everyone ||",
+						attachments: [{ id: 0, filename: "leaderboard.png" }]
+					}));
+					return formData;
+				};
+
+				let msgId = null;
+				try {
+					const snap = await get(ref(db, 'system/discord/leaderboardMessageId'));
+					if(snap.exists()) msgId = snap.val();
+				} catch(e) {}
+
+				let url = msgId ? `${webhookUrl}/messages/${msgId}?wait=true` : `${webhookUrl}?wait=true`;
+				let method = msgId ? 'PATCH' : 'POST';
+
+				let response = await fetch(url, { 
+					method: method, 
+					body: createFormData() 
+				});
+				
+				if (response.status === 404 && method === 'PATCH') {
+					method = 'POST';
+					url = `${webhookUrl}?wait=true`;
+					response = await fetch(url, { 
+						method: method, 
+						body: createFormData() 
+					});
+				}
+				
+				if (response.ok) {
+					const resData = await response.json();
+					if(resData.id) {
+						await set(ref(db, 'system/discord/leaderboardMessageId'), resData.id);
+					}
+					showToast("Leaderboard broadcasted to Discord.", "success");
+					logAdminActivity("BROADCAST", "Generated and sent Weekly Leaderboard Image to Discord.");
+				} else {
+					showToast("Failed to connect to Discord endpoint.", "error");
+				}
+
+			} catch (error) {
+				showToast("Failed to generate image.", "error");
+			}
+		};
+
+		window.handleLogout = () => {
+			auth.signOut().then(() => {
+				window.location.href = 'index.html';
+			});
+		};
+
+		onAuthStateChanged(auth, async (user) => {
+			if (!user) { 
+				window.location.href = 'index.html'; 
+				return; 
+			}
+			currentUserEmail = user.email;
+
+			if (user.email === 'rep6se@gmail.com') {
+				isSuperDev = true;
+				document.body.style.display = 'block'; 
+				loadData(); 
+				return;
+			}
+			
+			const encodedEmail = user.email.replace(/\./g, ',');
+			onValue(ref(db, `system/admins/${encodedEmail}`), (snap) => {
+				if (snap.exists() && snap.val() === true) {
+					document.body.style.display = 'block';
+					document.getElementById('adminTabBtn').style.display = 'none';
+					loadData();
+				} else {
+					window.location.href = 'index.html';
+				}
+			}, { onlyOnce: true });
+		});
+
+		function getTierValue(pts) {
+			if(pts >= 100) return 7;
+			if(pts >= 81) return 6;
+			if(pts >= 61) return 5;
+			if(pts >= 41) return 4;
+			if(pts >= 31) return 3;
+			if(pts >= 20) return 2;
+			return 1;
+		}
+
+		function getTitle(api) {
+			if(api >= 25) return "Axiom—High Tier";
+			if(api >= 15) return "Axiom—Mid Tier";
+			return "Axiom—Low Tier";
+		}
+
+		function getRole(ps, i, o, d, gk) {
+			let max = Math.max(ps, i, o, d, gk);
+			let tops = [];
+			
+			if(ps === max) tops.push('PS');
+			if(i === max) tops.push('I');
+			if(o === max) tops.push('O');
+			if(d === max) tops.push('D');
+			if(gk === max) tops.push('GK');
+
+			if(tops.length === 1) {
+				if(tops[0] === 'PS') return "Prodigy";
+				if(tops[0] === 'I') return "Strategist";
+				if(tops[0] === 'O') return "Striker";
+				if(tops[0] === 'D') return "Guardian";
+				if(tops[0] === 'GK') return "Goalkeeper";
+			} else if(tops.length === 2) {
+				if(tops.includes('PS') && tops.includes('O')) return "Playmaker";
+				if(tops.includes('I') && tops.includes('D')) return "Anchor";
+				return "Hybrid";
+			}
+			return "Hybrid";
+		}
+
+		function loadData() {
+			window.renderMatchActions();
+
+			onValue(ref(db, 'system/rulebook'), (snap) => {
+				document.getElementById('rulebookInput').value = snap.val() || "";
+			});
+
+			onValue(ref(db, 'requests'), (snap) => {
+				const grid = document.getElementById('reqGrid');
+				let html = "";
+				
+				if(!snap.exists()){ 
+					grid.innerHTML = `<div class="empty-state">No pending registrations.</div>`; 
+					return; 
+				}
+				
+				let count = 0;
+				snap.forEach(child => {
+					const r = child.val();
+					const jsonStr = encodeURIComponent(JSON.stringify({...r, id: child.key}));
+					let delay = Math.min(count * 0.05, 0.5); 
+					count++;
+					
+					html += `
+					<div class="admin-card" style="animation-delay: ${delay}s">
+						<div class="card-top">
+							<h2 class="ign font-display">${r.name}</h2>
+							<span class="email-text">${r.email}</span>
+							<div class="badges">
+								<span class="region-badge">${r.region}</span>
+								<span class="role-badge"><i class="fa-brands fa-discord"></i> ${r.discord || 'None'}</span>
+							</div>
+						</div>
+						<div class="card-actions">
+							<button class="btn btn-green" onclick="approveReq('${jsonStr}')"><i class="fa-solid fa-check"></i> Accept</button>
+							<button class="btn btn-red" onclick="rejectReq('${child.key}')"><i class="fa-solid fa-xmark"></i> Reject</button>
+						</div>
+					</div>`;
+				});
+				grid.innerHTML = html;
+			});
+
+			onValue(ref(db, 'players'), (snap) => {
+				playerDatabase = [];
+				if(snap.exists()) {
+					snap.forEach(child => {
+						const p = child.val();
+						p.uid = child.key;
+						playerDatabase.push(p);
+					});
+					playerDatabase.sort((a, b) => (b.pi || 0) - (a.pi || 0)); 
+				}
+				renderPlayers();
+			});
+
+			onValue(ref(db, 'system/logs'), (snap) => {
+				const container = document.getElementById("logsContainer");
+				if(!snap.exists()) {
+					container.innerHTML = `<div class="empty-state">No system logs available.</div>`;
+					return;
+				}
+				
+				let rawData = snap.val();
+				let logs = [];
+
+				if (rawData.action && rawData.timestamp !== undefined) {
+					logs = [rawData];
+				} else {
+					logs = Object.values(rawData);
+				}
+
+				logs.sort((a,b) => b.timestamp - a.timestamp);
+
+				let html = "";
+				logs.forEach(log => {
+					html += `
+					<div class="log-item">
+						<div class="log-header">
+							<span class="log-action">${log.action}</span>
+							<span class="log-time">${formatTime(log.timestamp)}</span>
+						</div>
+						<div class="log-details">${log.details}</div>
+						<div class="log-admin"><i class="fa-solid fa-user-shield"></i> ${log.email}</div>
+					</div>`;
+				});
+				container.innerHTML = html;
+			});
+
+			if(isSuperDev) {
+				onValue(ref(db, 'system/admins'), (snap) => {
+					const grid = document.getElementById('adminGrid');
+					let html = `
+					<div class="admin-card" style="border-color: rgba(239, 68, 68, 0.5); opacity:1; animation:none;">
+						<div class="card-top" style="margin-bottom:0;">
+							<h2 class="ign font-display" style="color:var(--danger);">DEV CORE</h2>
+							<span class="email-text" style="color:#fff;">rep6se@gmail.com</span>
+							<div class="badges"><span class="role-badge badge-dev">DEV</span></div>
+						</div>
+					</div>`;
+					
+					if(snap.exists()){
+						let count = 0;
+						snap.forEach(child => {
+							const decodedEmail = child.key.replace(/,/g, '.');
+							let delay = Math.min(count * 0.05, 0.5); 
+							count++;
+							
+							html += `
+							<div class="admin-card" style="animation-delay: ${delay}s">
+								<div class="card-top">
+									<h2 class="ign font-display">AUTHORIZED</h2>
+									<span class="email-text">${decodedEmail}</span>
+									<div class="badges"><span class="role-badge badge-admin">ADMIN</span></div>
+								</div>
+								<div class="card-actions">
+									<button class="btn btn-red" onclick="removeAdmin('${child.key}', '${decodedEmail}')"><i class="fa-solid fa-ban"></i> Revoke</button>
+								</div>
+							</div>`;
+						});
+					}
+					grid.innerHTML = html;
+				});
+			}
+		}
+
+		window.renderMatchActions = () => {
+			const container = document.getElementById("dynamicActionList");
+			let html = "";
+			let currentCat = "";
+			
+			matchActions.forEach(a => {
+				if(a.cat !== currentCat) {
+					html += `<div class="category-title">${a.cat}</div>`;
+					currentCat = a.cat;
+				}
+				
+				let valText = a.val > 0 ? `+${a.val}` : `${a.val}`;
+				let ptsClass = a.val < 0 ? 'negative' : '';
+				
+				html += `
+				<div class="action-row">
+					<div class="action-info">
+						<span class="action-name">${a.name}</span>
+						<span class="action-pts ${ptsClass}">${valText} ${a.stat}</span>
+					</div>
+					<div class="action-counter-group">
+						<button onclick="changeActionCount('${a.id}', -1)">-</button>
+						<input type="number" id="act_${a.id}" value="0" readonly>
+						<button onclick="changeActionCount('${a.id}', 1)">+</button>
+					</div>
+				</div>`;
+			});
+			container.innerHTML = html;
+		};
+
+		window.changeActionCount = (id, delta) => {
+			const input = document.getElementById(`act_${id}`);
+			let val = parseInt(input.value) || 0;
+			val += delta;
+			if(val < 0) val = 0;
+			input.value = val;
+		};
+
+		window.renderPlayers = () => {
+			const grid = document.getElementById('playerGrid');
+			const searchQ = document.getElementById("searchInput").value.toLowerCase();
+			const filterR = document.getElementById("filterRegion").value;
+			
+			let filteredPlayers = playerDatabase.filter(p => {
+				const pName = p.name ? p.name.toLowerCase() : "";
+				const matchName = pName.includes(searchQ);
+				const matchRegion = filterR === "All" || (p.region && p.region === filterR);
+				return matchName && matchRegion;
+			});
+
+			if(filteredPlayers.length === 0){ 
+				grid.innerHTML = `<div class="empty-state">No players found.</div>`; 
+				return; 
+			}
+
+			let html = "";
+			filteredPlayers.forEach((p, index) => {
+				let roleHtml = `<span class="role-badge">${p.role || 'Player'}</span>`;
+				
+				if(p.email === 'rep6se@gmail.com') {
+					roleHtml = `<span class="role-badge badge-dev">DEV</span>`;
+				} else if(p.role && p.role.toUpperCase() === 'ADMIN') {
+					roleHtml = `<span class="role-badge badge-admin">ADMIN</span>`;
+				}
+
+				let delay = Math.min(index * 0.03, 0.5);
+
+				html += `
+				<div class="admin-card" style="animation-delay: ${delay}s">
+					<div class="card-top">
+						<h2 class="ign font-display">${p.name || 'Unknown'}</h2>
+						<span class="email-text">${p.email || 'Unidentified'}</span>
+						<div class="badges">
+							<span class="region-badge">${p.region || 'Unknown'}</span>
+							<span class="region-badge" style="border-color:var(--accent); color:var(--accent);">ΛPI: ${p.pi || 5}</span>
+							${roleHtml}
+						</div>
+					</div>
+					<div class="card-actions">
+						<button class="btn btn-orange" onclick="openEditModal('${p.uid}')"><i class="fa-solid fa-pen"></i> Edit</button>
+						<button class="btn btn-red" onclick="deletePlayer('${p.uid}', '${p.name}')"><i class="fa-solid fa-trash"></i> Delete</button>
+					</div>
+				</div>`;
+			});
+			grid.innerHTML = html;
+		};
+
+		window.openFilterRegionModal = () => document.getElementById("filterRegionModal").classList.add("active");
+		
+		window.closeFilterRegionModal = () => document.getElementById("filterRegionModal").classList.remove("active");
+		
+		window.selectFilterRegion = (region) => {
+			document.getElementById("filterRegionDisplay").innerText = region === 'All' ? 'All Regions' : region;
+			document.getElementById("filterRegion").value = region;
+			closeFilterRegionModal();
+			renderPlayers();
+		};
+
+		window.openEditRegionModal = () => document.getElementById("editRegionModal").classList.add("active");
+		
+		window.closeEditRegionModal = () => document.getElementById("editRegionModal").classList.remove("active");
+		
+		window.selectRegion = (region) => {
+			document.getElementById("editRegionDisplay").innerText = region;
+			document.getElementById("editRegion").value = region;
+			closeEditRegionModal();
+		};
+
+		window.openEditModal = (uid) => {
+			const p = playerDatabase.find(x => x.uid === uid);
+			if(!p) return;
+			
+			currentEditingUid = uid;
+			document.getElementById("editModalName").innerText = p.name;
+			document.getElementById("editRegionDisplay").innerText = p.region || "Asia";
+			document.getElementById("editRegion").value = p.region || "Asia";
+			document.getElementById("inputPS").value = p.psPts || 0;
+			document.getElementById("inputI").value = p.iPts || 0;
+			document.getElementById("inputO").value = p.oPts || 0;
+			document.getElementById("inputD").value = p.dPts || 0;
+			document.getElementById("inputGK").value = p.gkPts || 0;
+			document.getElementById("editModal").classList.add("active");
+		};
+
+		window.closeEditModal = () => {
+			document.getElementById("editModal").classList.remove("active");
+			currentEditingUid = null;
+		};
+
+		window.openPlayerSelectModal = () => {
+			document.getElementById("playerSelectModal").classList.add("active");
+			document.getElementById("playerSearchInput").value = "";
+			renderPlayerModalList();
+		};
+		
+		window.closePlayerSelectModal = () => document.getElementById("playerSelectModal").classList.remove("active");
+
+		window.renderPlayerModalList = () => {
+			const search = document.getElementById("playerSearchInput").value.toLowerCase();
+			const list = document.getElementById("playerSelectList");
+			let sorted = [...playerDatabase].sort((a, b) => a.name.localeCompare(b.name));
+			let filtered = sorted.filter(p => p.name.toLowerCase().includes(search));
+			
+			if(filtered.length === 0) { 
+				list.innerHTML = '<div style="text-align:center; color:var(--text-tertiary); padding:10px;">No players found.</div>'; 
+				return; 
+			}
+			
+			let html = "";
+			filtered.forEach(p => {
+				html += `
+				<div class="list-item" onclick="selectLogPlayer('${p.uid}', '${p.name.replace(/'/g, "\\'")}')">
+					<span class="list-item-title">${p.name}</span>
+					<span class="list-item-sub">${p.region}</span>
+				</div>`;
+			});
+			list.innerHTML = html;
+		};
+
+		window.selectLogPlayer = (uid, name) => {
+			document.getElementById("selectedLogPlayerUid").value = uid;
+			document.getElementById("logPlayerDisplay").innerText = name;
+			closePlayerSelectModal();
+			document.getElementById("matchLoggerActions").style.display = "block";
+			matchActions.forEach(a => {
+				const el = document.getElementById(`act_${a.id}`);
+				if(el) el.value = 0;
+			});
+		};
+
+		const updatePlayerData = async (uid, newPs, newI, newO, newD, newGk, regionFallback = null) => {
+			const p = playerDatabase.find(x => x.uid === uid);
+			if(!p) return;
+
+			const clamp = (val) => Math.min(200, Math.max(0, parseInt(val) || 0));
+
+			const psPts = clamp(newPs);
+			const iPts = clamp(newI);
+			const oPts = clamp(newO);
+			const dPts = clamp(newD);
+			const gkPts = clamp(newGk);
+
+			const valPS = getTierValue(psPts);
+			const valI = getTierValue(iPts);
+			const valO = getTierValue(oPts);
+			const valD = getTierValue(dPts);
+			const valGK = getTierValue(gkPts);
+
+			const api = valPS + valI + valO + valD + valGK;
+			const title = getTitle(api);
+			const rawRole = getRole(valPS, valI, valO, valD, valGK);
+			const finalRegion = regionFallback || p.region;
+			
+			let finalRole = rawRole;
+			if(p.email === 'rep6se@gmail.com') {
+				finalRole = 'DEV';
+			} else if(p.role === 'ADMIN' || p.role === 'DEV') {
+				finalRole = p.role;
+			}
+
+			const pRef = ref(db, `players/${uid}`);
+			await set(pRef, {
+				...p, 
+				region: finalRegion, 
+				psPts: psPts, 
+				iPts: iPts, 
+				oPts: oPts, 
+				dPts: dPts, 
+				gkPts: gkPts,
+				ps: valPS, 
+				i: valI, 
+				o: valO, 
+				d: valD, 
+				gk: valGK, 
+				pi: api, 
+				title: title, 
+				role: finalRole
+			});
+		};
+
+		window.savePlayerStats = async () => {
+			if(!currentEditingUid) return;
+			const p = playerDatabase.find(x => x.uid === currentEditingUid);
+			const newRegion = document.getElementById("editRegion").value;
+			
+			await updatePlayerData(
+				currentEditingUid,
+				document.getElementById("inputPS").value,
+				document.getElementById("inputI").value,
+				document.getElementById("inputO").value,
+				document.getElementById("inputD").value,
+				document.getElementById("inputGK").value,
+				newRegion
+			);
+			
+			logAdminActivity("UPDATE PLAYER", `Updated raw stats and/or region for player ${p.name}`);
+			showToast("Entity Synced Successfully", "success");
+			closeEditModal();
+		};
+
+		window.applyMatchAction = async () => {
+			const uid = document.getElementById("selectedLogPlayerUid").value;
+			if(!uid) return showToast("Select target entity.", "error");
+
+			const p = playerDatabase.find(x => x.uid === uid);
+			if(!p) return;
+
+			let nPs = p.psPts || 0; 
+			let nI = p.iPts || 0; 
+			let nO = p.oPts || 0; 
+			let nD = p.dPts || 0; 
+			let nGk = p.gkPts || 0;
+			let hasChanges = false;
+			let logDetailsArr = [];
+
+			for (const a of matchActions) {
+				const count = parseInt(document.getElementById(`act_${a.id}`).value) || 0;
+				if(count > 0) {
+					hasChanges = true;
+					const totalAmt = a.val * count;
+					
+					if(a.stat === 'ALL') { 
+						nPs += totalAmt; 
+						nI += totalAmt; 
+						nO += totalAmt; 
+						nD += totalAmt; 
+						nGk += totalAmt; 
+					} else if(a.stat === 'PS') {
+						nPs += totalAmt;
+					} else if(a.stat === 'I') {
+						nI += totalAmt;
+					} else if(a.stat === 'O') {
+						nO += totalAmt;
+					} else if(a.stat === 'D') {
+						nD += totalAmt;
+					} else if(a.stat === 'GK') {
+						nGk += totalAmt;
+					}
+
+					const actionString = `${a.name} (x${count})`;
+					logDetailsArr.push(actionString);
+					
+					const histRef = push(ref(db, `history/${uid}`));
+					await set(histRef, { 
+						action: actionString, 
+						stat: a.stat, 
+						amount: totalAmt, 
+						timestamp: Date.now() 
+					});
+
+					document.getElementById(`act_${a.id}`).value = 0;
+				}
+			}
+
+			if(!hasChanges) return showToast("No variables selected.", "warning");
+
+			await updatePlayerData(uid, nPs, nI, nO, nD, nGk);
+			
+			logAdminActivity("MATCH LOG", `Logged actions for ${p.name}: ${logDetailsArr.join(', ')}`);
+			showToast("Success.", "success");
+			
+			document.getElementById("selectedLogPlayerUid").value = "";
+			document.getElementById("logPlayerDisplay").innerText = "Select a player...";
+			document.getElementById("matchLoggerActions").style.display = "none";
+		};
+
+		window.initiateSoftReset = () => {
+			showConfirm("Soft Reset", "This command will deduct 20 points from ALL registered entities. Reversal is impossible.", async () => {
+				for (const p of playerDatabase) {
+					let nPs = Math.max(0, (p.psPts || 0) - 20);
+					let nI = Math.max(0, (p.iPts || 0) - 20);
+					let nO = Math.max(0, (p.oPts || 0) - 20);
+					let nD = Math.max(0, (p.dPts || 0) - 20);
+					let nGk = Math.max(0, (p.gkPts || 0) - 20);
+					await updatePlayerData(p.uid, nPs, nI, nO, nD, nGk);
+				}
+				logAdminActivity("SOFT RESET", "Executed global soft reset (-20 points across all stats).");
+				showToast("Global Soft Reset Executed.", "warning");
+			});
+		};
+
+		window.approveReq = async (jsonStr) => {
+			const req = JSON.parse(decodeURIComponent(jsonStr));
+			const pRef = ref(db, `players/${req.uid}`);
+			
+			await set(pRef, {
+				name: req.name, 
+				email: req.email, 
+				region: req.region, 
+				discord: req.discord,
+				psPts: 0, 
+				iPts: 0, 
+				oPts: 0, 
+				dPts: 0, 
+				gkPts: 0,
+				ps: 1, 
+				i: 1, 
+				o: 1, 
+				d: 1, 
+				gk: 1, 
+				pi: 5, 
+				role: "Hybrid", 
+				title: "Axiom—Low Tier"
+			});
+			
+			await remove(ref(db, `requests/${req.id}`));
+			logAdminActivity("APPROVED PLAYER", `Approved registration for ${req.name} (${req.email})`);
+			showToast(`Approved ${req.name}`, "success");
+		};
+
+		window.rejectReq = (id) => { 
+			showConfirm("Reject Candidate", "Permanently discard this application?", async () => {
+				await remove(ref(db, `requests/${id}`));
+				logAdminActivity("REJECTED PLAYER", `Rejected an application from queue.`);
+				showToast("Application discarded.", "warning");
+			});
+		};
+
+		window.deletePlayer = (uid, name) => { 
+			showConfirm("Delete Plauer", `Delete ${name} from the active database? Data cannot be recovered.`, async () => {
+				await remove(ref(db, `players/${uid}`));
+				await remove(ref(db, `history/${uid}`));
+				logAdminActivity("DELETED PLAYER", `Deleted player entity: ${name}`);
+				showToast("Player Deleted.", "error");
+			});
+		};
+
+		window.saveRulebook = async () => {
+			const text = document.getElementById("rulebookInput").value;
+			await set(ref(db, 'system/rulebook'), text);
+			logAdminActivity("UPDATE RULEBOOK", "Updated rulebook text.");
+			showToast("Protocols Updated.", "success");
+		};
+
+		window.addAdmin = async () => {
+			const email = document.getElementById("newAdminEmail").value.trim();
+			if(!email || !email.includes('@')) return showToast("Invalid address pattern.", "error");
+			if(email === 'rep6se@gmail.com') return showToast("Core access immutable.", "warning");
+			
+			const encoded = email.replace(/\./g, ',');
+			await set(ref(db, `system/admins/${encoded}`), true);
+
+			const playersRef = ref(db, 'players');
+			get(playersRef).then((snapshot) => {
+				snapshot.forEach(child => {
+					let p = child.val();
+					if(p.email === email) {
+						set(ref(db, `players/${child.key}/role`), "ADMIN");
+					}
+				});
+			});
+
+			document.getElementById("newAdminEmail").value = "";
+			logAdminActivity("ADD ADMIN", `Granted Level 7 Access to ${email}`);
+			showToast("Clearance granted.", "info");
+		};
+
+		window.removeAdmin = (encodedKey, decodedEmail) => {
+			showConfirm("Revoke Clearance", `Strip admin override from ${decodedEmail}?`, async () => {
+				await remove(ref(db, `system/admins/${encodedKey}`));
+				
+				const playersRef = ref(db, 'players');
+				get(playersRef).then((snapshot) => {
+					snapshot.forEach(child => {
+						let p = child.val();
+						if(p.email === decodedEmail) {
+							const valPS = p.ps || 1; 
+							const valI = p.i || 1; 
+							const valO = p.o || 1; 
+							const valD = p.d || 1; 
+							const valGK = p.gk || 1;
+							const newRole = getRole(valPS, valI, valO, valD,valGK);
+							set(ref(db, `players/${child.key}/role`), newRole);
+						}
+					});
+				});
+				
+				logAdminActivity("REMOVE ADMIN", `Revoked Level 7 Access from ${decodedEmail}`);
+				showToast("Clearance stripped.", "warning");
+			});
+		};
+	</script>
+</body>
+</html>

@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Λxiom 7 | UE Players Tiers</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --bg-base: #050505;
+    --bg-surface: #121214;
+    --bg-surface-elevated: #1a1a1e; 
+    --border-subtle: #27272a;
+    --border-focus: #3f3f46;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --accent: #ff8c00;
+    --accent-glow: rgba(255, 140, 0, 0.25);
+    --danger: #ef4444;
+    --success: #10b981;
+    --info: #3b82f6;
+    --rank-1: #fbbf24;
+    --rank-2: #e4e4e7;
+    --rank-3: #b45309; 
+    --tier-high: #ff8c00;
+    --tier-mid: #a855f7;
+    --tier-low: #3b82f6;
+    --font-main: 'Inter', sans-serif;
+    --font-display: 'Rajdhani', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    overflow-x: hidden;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-size: 0.9rem;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { filter: drop-shadow(0 0 15px var(--accent-glow)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.6)); transform: scale(1.05); }
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.9) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes brandAnimate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes goldShine {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+.brand-animated {
+    background: linear-gradient(to right, var(--text-primary), var(--accent), var(--text-primary));
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: brandAnimate 4s linear infinite;
+}
+
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    pointer-events: none;
+    width: 90%;
+    max-width: 400px;
+}
+
+.toast {
+    background: var(--bg-surface-elevated);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    transform: translateY(-50px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.success { border-left: 4px solid var(--success); }
+.toast.warning { border-left: 4px solid var(--accent); }
+
+#welcome {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background: radial-gradient(circle at center, var(--bg-surface-elevated) 0%, var(--bg-base) 100%);
+}
+
+.welcome-logo {
+    width: 140px;
+    margin-bottom: 20px;
+    animation: pulseGlow 3s infinite;
+    object-fit: contain;
+}
+
+.welcome-content {
+    animation: fadeInSlide 1s ease forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.welcome-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.welcome-subtitle {
+    font-size: clamp(0.8rem, 2vw, 1.1rem);
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: var(--font-display);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+
+.btn-outline:hover {
+    background: var(--accent-glow);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.btn-solid {
+    background: var(--text-primary);
+    border: 1px solid var(--text-primary);
+    color: var(--bg-base);
+}
+
+.btn-solid:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.btn-icon:hover {
+    border-color: var(--info);
+    color: var(--info);
+}
+
+.site-header {
+    background: rgba(18, 18, 20, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 15px;
+}
+
+.header-logo {
+    height: 45px;
+    animation: pulseGlow 3s infinite;
+    object-fit: contain;
+}
+
+.header-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.top-nav {
+    display: flex;
+    gap: 15px;
+    padding: 12px 20px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-top: none;
+}
+
+.nav-item {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    padding: 8px 18px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.05);
+}
+
+.nav-item.active {
+    color: var(--bg-base);
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.nav-logout {
+    color: var(--danger) !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.nav-logout:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 4%;
+    min-height: 90vh;
+}
+
+.section {
+    display: none;
+    opacity: 0;
+    animation: fadeInSlide 0.4s ease forwards;
+}
+
+.section.active {
+    display: block;
+}
+
+.page-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+.page-header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    color: var(--text-primary);
+}
+
+.page-header p {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.controls-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    padding: 12px 15px 12px 40px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    width: 100%;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+input[type="text"].no-icon, input[type="email"].no-icon, input[type="password"].no-icon {
+    padding-left: 15px;
+}
+
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.active-filters-bar {
+    background: var(--bg-surface-elevated);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.active-filter-tag {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid var(--info);
+    color: var(--info);
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.active-filter-tag i {
+    cursor: pointer;
+}
+
+.active-filter-tag i:hover {
+    color: var(--danger);
+}
+
+.filter-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.filter-chip {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-chip:hover {
+    border-color: var(--info);
+    color: var(--text-primary);
+}
+
+.filter-chip.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--info);
+    color: var(--info);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.player-card {
+    background: var(--bg-surface);
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    padding: 14px;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    opacity: 0;
+    animation: slideUpFade 0.5s ease forwards;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.player-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+
+.premium-card {
+    border-width: 2px;
+}
+
+.card-rank-1 {
+    border-color: var(--rank-1);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+}
+
+.card-rank-1::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-25deg);
+    animation: goldShine 3s infinite;
+    pointer-events: none;
+}
+
+.card-rank-2 {
+    border-color: var(--rank-2);
+    box-shadow: 0 0 10px rgba(228, 228, 231, 0.08);
+}
+
+.card-rank-3 {
+    border-color: var(--rank-3);
+    box-shadow: 0 0 10px rgba(180, 83, 9, 0.08);
+}
+
+.rank-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 10px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 8px;
+    z-index: 2;
+}
+
+.card-rank-1 .rank-badge {
+    background: linear-gradient(135deg, var(--rank-1), #d97706);
+    color: #000;
+    box-shadow: -2px 2px 8px rgba(251,191,36,0.2);
+}
+
+.card-rank-2 .rank-badge {
+    background: linear-gradient(135deg, var(--rank-2), #a1a1aa);
+    color: #000;
+}
+
+.card-rank-3 .rank-badge {
+    background: linear-gradient(135deg, var(--rank-3), #78350f);
+    color: #fff;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.ign {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    word-break: break-all;
+    padding-right: 30px;
+    color: var(--text-primary);
+}
+
+.card-rank-1 .ign { color: var(--rank-1); text-shadow: 0 0 8px rgba(251,191,36,0.15); }
+.card-rank-2 .ign { color: var(--rank-2); }
+.card-rank-3 .ign { color: var(--rank-3); }
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.title-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 0;
+}
+
+.title-high { color: var(--tier-high); text-shadow: 0 0 8px rgba(255, 140, 0, 0.2); }
+.title-mid { color: var(--tier-mid); text-shadow: 0 0 8px rgba(168, 85, 247, 0.2); }
+.title-low { color: var(--tier-low); text-shadow: 0 0 8px rgba(59, 130, 246, 0.2); }
+
+.role-badge, .region-badge {
+    background: var(--bg-surface-elevated);
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.role-badge.badge-dev { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+.role-badge.badge-admin { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+
+.api-box {
+    text-align: left;
+    margin-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.api-label {
+    font-size: 0.6rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.api-score {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 0.9;
+    color: var(--text-primary);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 15px;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.modal-overlay.active .modal-content {
+    animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    overflow-y: auto;
+    padding-right: 5px;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-focus) transparent;
+}
+
+.modal-body::-webkit-scrollbar { width: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--border-focus); border-radius: 4px; }
+
+.stat-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    margin-right: 6px;
+    vertical-align: text-bottom;
+}
+
+.stat-bar-container {
+    margin-bottom: 12px;
+}
+
+.stat-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.stat-bar-header span.val {
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.stat-bar-header span.pts {
+    color: var(--text-tertiary);
+    font-family: var(--font-main);
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.stat-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-surface-elevated);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+}
+
+.stat-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.history-section {
+    margin-top: 25px;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 20px;
+}
+
+.history-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-focus) transparent;
+}
+
+.history-list::-webkit-scrollbar { width: 4px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--border-focus); border-radius: 4px; }
+
+.modal-scrollable-wrapper {
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-focus) transparent;
+}
+
+.modal-scrollable-wrapper::-webkit-scrollbar { width: 4px; }
+.modal-scrollable-wrapper::-webkit-scrollbar-thumb { background: var(--border-focus); border-radius: 4px; }
+
+.history-item {
+    background: var(--bg-surface-elevated);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-subtle);
+    transition: 0.2s;
+}
+
+.history-item.positive { border-left: 4px solid var(--success); }
+.history-item.negative { border-left: 4px solid var(--danger); }
+
+.history-item-desc {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    display: block;
+    font-size: 0.85rem;
+}
+
+.history-item-time {
+    color: var(--text-tertiary);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.compare-arena { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; text-align: center; gap: 10px; }
+.compare-card { flex: 1; padding: 15px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px; }
+.compare-vs { font-family: var(--font-display); font-size: 2rem; color: var(--text-tertiary); font-weight: 800; padding: 0 5px; }
+.compare-player-name { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--text-primary); line-height: 1.1; margin-bottom: 5px; word-break: break-word; }
+.compare-player-api { font-size: 2.5rem; font-family: var(--font-display); font-weight: 800; line-height: 1; }
+
+.compare-stat-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; transition: 0.2s; }
+.compare-stat-row:hover { border-color: var(--border-focus); transform: scale(1.02); }
+.compare-stat-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; width: 60px; text-align: center; }
+.compare-stat-label { flex: 1; text-align: center; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.compare-stat-icon { width: 20px; height: 20px; object-fit: contain; }
+
+.val-win { color: var(--success); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+.val-lose { color: var(--danger); opacity: 0.7; }
+.val-tie { color: var(--text-secondary); }
+
+.form-container {
+    background: var(--bg-surface);
+    padding: 35px;
+    border-radius: 16px;
+    max-width: 450px;
+    margin: 0 auto;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-switch {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.form-switch:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.rulebook-content {
+    background: var(--bg-surface);
+    padding: 40px 5%;
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    line-height: 1.8;
+    color: var(--text-secondary);
+    max-width: 900px;
+    margin: 0 auto;
+    font-size: 0.95rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.rulebook-content h1, .rulebook-content h2, .rulebook-content h3 {
+    color: var(--text-primary);
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    grid-column: 1 / -1;
+    font-size: 0.95rem;
+    background: var(--bg-surface);
+    border-radius: 12px;
+    border: 1px dashed var(--border-subtle);
+}
+
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.profile-info { flex: 1; }
+
+.profile-rank-box {
+    text-align: right;
+    border-left: 2px solid var(--border-subtle);
+    padding-left: 30px;
+}
+
+.global-rank {
+    font-size: 4.5rem;
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--accent);
+    line-height: 0.9;
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.rank-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.profile-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.profile-stats-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-stat-bar-container { margin-bottom: 18px; }
+.profile-stat-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+.profile-stat-label { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+.profile-stat-tier { font-size: 0.7rem; color: var(--text-tertiary); margin-left: 5px; }
+.profile-stat-val { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.profile-stat-bg { width: 100%; height: 10px; background: var(--bg-surface-elevated); border-radius: 5px; border: 1px solid var(--border-subtle); overflow: hidden; }
+.profile-stat-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #facc15); border-radius: 5px; transition: width 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; box-shadow: 0 0 10px var(--accent-glow); }
+
+.list-item {
+    padding: 12px 15px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: var(--bg-surface-elevated);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.list-item:hover {
+    border-color: var(--info);
+    color: var(--info);
+    transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+    .site-header { padding-top: 15px; }
+    .header-logo { height: 35px; }
+    .header-title { font-size: 1.5rem; }
+    .top-nav { padding: 10px; gap: 10px; flex-wrap: wrap; }
+    .nav-item { padding: 6px 12px; font-size: 0.75rem; }
+    .container { padding-bottom: 80px; }
+    .controls-bar { flex-direction: column; }
+    .search-wrapper { width: 100%; }
+    .profile-stats-grid { grid-template-columns: 1fr; }
+    .profile-header { flex-direction: column; align-items: center; text-align: center; }
+    .profile-rank-box { border-left: none; border-top: 2px solid var(--border-subtle); padding-left: 0; padding-top: 20px; text-align: center; width: 100%; }
+    .page-header h1 { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+    <div id="toastContainer"></div>
+
+    <div class="modal-overlay" id="unifiedFilterModal" onclick="if(event.target === this) closeFilterModal()">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="modal-close" onclick="closeFilterModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display" style="margin-bottom: 20px; font-size: 1.8rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">Filters</h3>
+            
+            <div class="modal-body">
+                <div>
+                    <div class="form-label" style="margin-bottom: 8px;">Region</div>
+                    <div class="filter-chip-group" id="chipGroupRegion">
+                        <div class="filter-chip" data-value="Asia" onclick="toggleFilter('Region', 'Asia')">Asia</div>
+                        <div class="filter-chip" data-value="Europe" onclick="toggleFilter('Region', 'Europe')">Europe</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <div class="form-label" style="margin-bottom: 8px;">Role</div>
+                    <div class="filter-chip-group" id="chipGroupRole">
+                        <div class="filter-chip" data-value="Prodigy" onclick="toggleFilter('Role', 'Prodigy')">Prodigy</div>
+                        <div class="filter-chip" data-value="Strategist" onclick="toggleFilter('Role', 'Strategist')">Strategist</div>
+                        <div class="filter-chip" data-value="Striker" onclick="toggleFilter('Role', 'Striker')">Striker</div>
+                        <div class="filter-chip" data-value="Guardian" onclick="toggleFilter('Role', 'Guardian')">Guardian</div>
+                        <div class="filter-chip" data-value="Goalkeeper" onclick="toggleFilter('Role', 'Goalkeeper')">Goalkeeper</div>
+                        <div class="filter-chip" data-value="Playmaker" onclick="toggleFilter('Role', 'Playmaker')">Playmaker</div>
+                        <div class="filter-chip" data-value="Anchor" onclick="toggleFilter('Role', 'Anchor')">Anchor</div>
+                        <div class="filter-chip" data-value="Hybrid" onclick="toggleFilter('Role', 'Hybrid')">Hybrid</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <div class="form-label" style="margin-bottom: 8px;">Tier</div>
+                    <div class="filter-chip-group" id="chipGroupTier">
+                        <div class="filter-chip" data-value="High" onclick="toggleFilter('Tier', 'High')">High Tier</div>
+                        <div class="filter-chip" data-value="Mid" onclick="toggleFilter('Tier', 'Mid')">Mid Tier</div>
+                        <div class="filter-chip" data-value="Low" onclick="toggleFilter('Tier', 'Low')">Low Tier</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="btn btn-outline" style="flex: 1; border-color: var(--border-focus); color: var(--text-secondary);" onclick="clearFilters()">Clear All</button>
+                <button class="btn btn-solid" style="flex: 2; background: var(--info); border-color: var(--info);" onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="regionModal" onclick="if(event.target === this) closeRegionModal()">
+        <div class="modal-content" style="max-width: 320px;">
+            <button class="modal-close" onclick="closeRegionModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display" style="margin-bottom: 15px; font-size: 1.5rem;">Server Region</h3>
+            <div class="modal-body">
+                <div class="list-item" onclick="selectRegRegion('Asia')"><i class="fa-solid fa-earth-asia"></i><span>Asia</span></div>
+                <div class="list-item" onclick="selectRegRegion('Europe')"><i class="fa-solid fa-earth-europe"></i><span>Europe</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="playerModal" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <button class="modal-close" style="top: 20px; right: 20px; z-index: 50;" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="modal-scrollable-wrapper">
+                <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px; margin-bottom: 20px; text-align: center; margin-top: 10px;">
+                    <h2 class="font-display" style="font-size: 2.5rem; line-height: 1; margin-bottom: 12px; color: var(--text-primary);" id="modalName">PLAYER NAME</h2>
+                    <div class="badges" id="modalBadges" style="justify-content:center;"></div>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 25px; padding: 0 10px;">
+                    <span style="color:var(--text-secondary); font-size:0.85rem; text-transform:uppercase; font-weight:800; letter-spacing:1px; display:block;">Axiom Power Index</span>
+                    <h3 class="font-display" style="font-size: 4rem; line-height: 0.9; color:var(--text-primary); margin-top:5px;" id="modalApi">0</h3>
+                </div>
+
+                <div id="modalStatsBars" style="padding: 0 10px;"></div>
+                
+                <button class="btn btn-outline" style="width: 100%; margin-top: 25px; border-color: var(--accent); color: var(--accent);" onclick="initCompare()"><i class="fa-solid fa-code-compare"></i> Compare Player</button>
+                
+                <div class="history-section">
+                    <div class="history-title"><span id="historyTitleText">Match Performance Records</span> <i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="history-list" id="modalHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="compareSearchModal" onclick="if(event.target === this) closeCompareSearchModal()">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCompareSearchModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display" style="margin-bottom: 15px; font-size: 1.5rem;">Select Opponent</h3>
+            <div class="search-wrapper" style="margin-bottom: 15px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="compareSearchInput" placeholder="Search IGN..." oninput="renderCompareList()">
+            </div>
+            <div class="modal-body" id="compareList" style="max-height: 300px;"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="comparisonModal" onclick="if(event.target === this) closeComparisonModal()">
+        <div class="modal-content" style="max-width: 550px; padding: 25px 20px;">
+            <button class="modal-close" onclick="closeComparisonModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div id="compareContent" style="width: 100%; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="logoutModal" onclick="if(event.target === this) closeLogoutModal()">
+        <div class="modal-content" style="max-width: 320px; text-align: center;">
+            <button class="modal-close" onclick="closeLogoutModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display" style="margin-bottom: 15px; font-size: 1.5rem; color: var(--danger);">Logout</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.85rem;">Are you sure you want to logout?</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-outline" style="flex: 1; border-color: var(--border-focus); color: var(--text-secondary);" onclick="closeLogoutModal()">Cancel</button>
+                <button class="btn btn-solid" style="flex: 1; background: var(--danger); border-color: var(--danger); color: #fff;" onclick="executeLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="welcome">
+        <div class="welcome-content">
+            <img src="logo.png" class="welcome-logo" alt="Λ7 Logo" onerror="this.outerHTML='<i class=\\'fa-solid fa-hexagon-nodes welcome-logo\\' style=\\'color: var(--accent); font-size: 5rem;\\'></i>'">
+            <h1 class="welcome-title font-display brand-animated" onclick="triggerAdmin()">ΛXIOM 7</h1>
+            <p class="welcome-subtitle">UNMATCHED EGO TIERS</p>
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="enterSite('leaderboard')">Enter</button>
+                <button class="btn btn-solid" onclick="enterSite('authSection')">Login/Register</button>
+            </div>
+        </div>
+    </div>
+
+    <header id="topNav" class="site-header hidden">
+        <div class="header-brand" onclick="triggerAdmin()">
+            <img src="logo.png" class="header-logo" alt="Logo" onerror="this.outerHTML='<i class=\\'fa-solid fa-hexagon-nodes header-logo\\' style=\\'color: var(--accent);\\'></i>'">
+            <div class="header-title font-display brand-animated">ΛXIOM 7</div>
+        </div>
+        
+        <div class="top-nav">
+            <button class="nav-item active" onclick="showSection('leaderboard', this)">Ranking</button>
+            <button class="nav-item" onclick="showSection('rulebook', this)">Rulebook</button>
+            <button class="nav-item" id="navProfileBtn" onclick="showSection('profileSection', this)" style="display:none;">Profile</button>
+            <button class="nav-item" id="navRegBtn" onclick="handleNavRegClick(this)">Login</button>
+        </div>
+    </header>
+
+    <div id="mainContainer" class="container hidden">
+        
+        <div id="leaderboard" class="section active">
+            <div class="page-header">
+                <h1 class="font-display">Global Power Index</h1>
+                <p>Official Rankings</p>
+            </div>
+            
+            <div class="controls-bar">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search Player IGN..." oninput="renderLeaderboard()">
+                </div>
+                <button class="btn-icon" onclick="openFilterModal()">
+                    <i class="fa-solid fa-sliders"></i> Filters
+                </button>
+            </div>
+
+            <div id="activeFiltersContainer" class="active-filters-bar hidden">
+                <span>Active Filters:</span>
+                <div id="activeFiltersTags" style="display: inline-flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="grid" id="playerGrid">
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading ...</div>
+            </div>
+        </div>
+
+        <div id="authSection" class="section">
+            <div class="page-header">
+                <h1 id="authTitle" class="font-display">Authentication</h1>
+                <p id="authSubtitle">Identify yourself</p>
+            </div>
+            <div class="form-container">
+                <div class="input-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="authEmail" class="no-icon" placeholder="example@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label class="form-label">Passcode</label>
+                    <input type="password" id="authPassword" class="no-icon" placeholder="••••••••">
+                </div>
+                <div id="signupFields" class="hidden">
+                    <div style="height: 1px; background: var(--border-subtle); margin: 25px 0;"></div>
+                    <p class="form-label" style="color: var(--accent); margin-bottom: 15px; text-align: center;">New Player Registration</p>
+                    <div class="input-group">
+                        <label class="form-label">In-Game Name (IGN)</label>
+                        <input type="text" id="regName" class="no-icon" placeholder="Exact Username">
+                    </div>
+                    <div class="input-group">
+                        <label class="form-label">Discord ID</label>
+                        <input type="text" id="regDiscord" class="no-icon" placeholder="username#0000">
+                    </div>
+                    <div class="input-group">
+                        <label class="form-label">Server Region</label>
+                        <button class="btn-icon" style="justify-content: space-between; width: 100%; background: var(--bg-surface);" onclick="openRegionModal()">
+                            <span id="regRegionDisplay">Select Region</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <input type="hidden" id="regRegion" value="">
+                    </div>
+                </div>
+                <button class="btn btn-solid btn-submit" style="width: 100%; padding: 14px; margin-top: 15px; background: var(--accent); border-color: var(--accent);" id="authBtn">Authenticate</button>
+                <div class="form-switch" id="authToggle">Unregistered? Create Profile.</div>
+                
+                <button id="logoutBtnAlt" class="btn btn-outline hidden" style="width: 100%; margin-top: 20px; border-color: var(--danger); color: var(--danger);" onclick="openLogoutModal()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Disconnect System
+                </button>
+            </div>
+        </div>
+
+        <div id="profileSection" class="section">
+            <div class="page-header">
+                <h1 class="font-display">Profile</h1>
+                <p>Personal Data</p>
+            </div>
+            <div id="profileContent" class="profile-container">
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Initializing Profile...</div>
+            </div>
+        </div>
+
+        <div id="rulebook" class="section">
+            <div class="page-header">
+                <h1 class="font-display">Rulebook</h1>
+            </div>
+            <div class="rulebook-content" id="rulebookContent">
+                <div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXEN2pVF5A5rtXWKJ3I1QEFOheRvcyQiE",
+            databaseURL: "https://uetiers-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "uetiers"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        
+        window.playerDatabase = [];
+        let currentPlayerToCompare = null;
+        let currentUserEmail = null;
+
+        let activeFilters = { Region: [], Role: [], Tier: [] };
+        let tempFilters = { Region: [], Role: [], Tier: [] };
+
+        window.showToast = (message, type = "success") => {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            let icon = type === 'success' ? '<i class="fa-solid fa-check"></i>' : type === 'error' ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-solid fa-circle-info"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 10);
+            setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 400); }, 3000);
+        };
+
+        const roleIcons = {
+            "Prodigy": "<i class='fa-solid fa-bolt' style='color:#fbbf24'></i>",
+            "Strategist": "<i class='fa-solid fa-brain' style='color:#a855f7'></i>",
+            "Striker": "<i class='fa-solid fa-crosshairs' style='color:#ef4444'></i>",
+            "Guardian": "<i class='fa-solid fa-shield-halved' style='color:#3b82f6'></i>",
+            "Goalkeeper": "<i class='fa-solid fa-hands' style='color:#10b981'></i>",
+            "Playmaker": "<i class='fa-solid fa-wand-magic-sparkles' style='color:#f472b6'></i>",
+            "Anchor": "<i class='fa-solid fa-anchor' style='color:#94a3b8'></i>",
+            "Hybrid": "<i class='fa-solid fa-yin-yang' style='color:var(--text-primary)'></i>",
+            "DEV": "<i class='fa-solid fa-code'></i>",
+            "ADMIN": "<i class='fa-solid fa-user-shield'></i>"
+        };
+
+        function getRoleBadge(role) {
+            let upper = role ? role.toUpperCase() : "HYBRID";
+            let r = role || "Hybrid";
+            let icon = roleIcons[r] || roleIcons["Hybrid"];
+            if(upper === 'DEV') return `<span class="role-badge badge-dev">${roleIcons["DEV"]} DEV</span>`;
+            if(upper === 'ADMIN') return `<span class="role-badge badge-admin">${roleIcons["ADMIN"]} ADMIN</span>`;
+            return `<span class="role-badge">${icon} ${r}</span>`;
+        }
+
+        function getTitleBadgeClass(title) {
+            if(!title) return "title-low";
+            if(title.includes("High")) return "title-high";
+            if(title.includes("Mid")) return "title-mid";
+            return "title-low";
+        }
+
+        let adminClickCount = 0; let adminClickTimer;
+        window.triggerAdmin = () => {
+            adminClickCount++; clearTimeout(adminClickTimer);
+            if(adminClickCount === 5) {
+                showToast("Redirecting...", "warning");
+                setTimeout(() => window.location.href = 'admin.html', 1500);
+                adminClickCount = 0;
+            }
+            adminClickTimer = setTimeout(() => { adminClickCount = 0; }, 1000); 
+        };
+
+        window.enterSite = (targetSection) => {
+            document.getElementById("welcome").style.display = "none";
+            document.getElementById("topNav").classList.remove("hidden");
+            document.getElementById("mainContainer").classList.remove("hidden");
+            window.showSection(targetSection, document.querySelector(`.nav-item[onclick*="${targetSection}"]`));
+        };
+
+        window.showSection = (sectionId, btnElem) => {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            setTimeout(() => { document.getElementById(sectionId).classList.add('active'); }, 50); 
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                if(!btn.classList.contains('nav-logout')) {
+                    btn.classList.remove('active')
+                }
+            });
+            if(btnElem && !btnElem.classList.contains('nav-logout')) btnElem.classList.add('active');
+            else { const activeBtn = document.querySelector(`.nav-item[onclick*="${sectionId}"]`); if(activeBtn && !activeBtn.classList.contains('nav-logout')) activeBtn.classList.add('active'); }
+            if(sectionId === 'profileSection') renderProfile();
+        };
+
+        window.openFilterModal = () => {
+            tempFilters = JSON.parse(JSON.stringify(activeFilters));
+            updateFilterUI();
+            document.getElementById("unifiedFilterModal").classList.add("active");
+        };
+        window.closeFilterModal = () => document.getElementById("unifiedFilterModal").classList.remove("active");
+        
+        window.toggleFilter = (category, value) => {
+            const idx = tempFilters[category].indexOf(value);
+            if (idx > -1) {
+                tempFilters[category].splice(idx, 1);
+            } else {
+                tempFilters[category].push(value);
+            }
+            updateFilterUI();
+        };
+
+        window.clearFilters = () => {
+            tempFilters = { Region: [], Role: [], Tier: [] };
+            updateFilterUI();
+        };
+
+        function updateFilterUI() {
+            ['Region', 'Role', 'Tier'].forEach(cat => {
+                const arr = tempFilters[cat];
+                const container = document.getElementById(`chipGroup${cat}`);
+                container.querySelectorAll('.filter-chip').forEach(c => {
+                    const chipValue = c.getAttribute('data-value');
+                    if(arr.includes(chipValue)) c.classList.add('active');
+                    else c.classList.remove('active');
+                });
+            });
+        }
+
+        window.removeSpecificFilter = (cat, val) => {
+            const idx = activeFilters[cat].indexOf(val);
+            if (idx > -1) {
+                activeFilters[cat].splice(idx, 1);
+                renderLeaderboard();
+            }
+        };
+
+        window.applyFilters = () => {
+            activeFilters = JSON.parse(JSON.stringify(tempFilters));
+            closeFilterModal();
+            renderLeaderboard();
+        };
+
+        window.openRegionModal = () => document.getElementById("regionModal").classList.add("active");
+        window.closeRegionModal = () => document.getElementById("regionModal").classList.remove("active");
+        window.selectRegRegion = (region) => { document.getElementById("regRegionDisplay").innerText = region; document.getElementById("regRegion").value = region; closeRegionModal(); };
+
+        let isLoginMode = true;
+        const authBtn = document.getElementById("authBtn"); const authToggle = document.getElementById("authToggle"); const signupFields = document.getElementById("signupFields");
+
+        authToggle.onclick = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById("authTitle").innerText = isLoginMode ? "Authentication" : "Initialization";
+            document.getElementById("authSubtitle").innerText = isLoginMode ? "Identify yourself to the System" : "Register yourself";
+            authBtn.innerText = isLoginMode ? "Authenticate" : "Apply to Council";
+            authToggle.innerText = isLoginMode ? "Unregistered? Create Profile." : "Already registered? Login here.";
+            if(isLoginMode) signupFields.classList.add("hidden"); else signupFields.classList.remove("hidden");
+        };
+
+        authBtn.onclick = async () => {
+            const e = document.getElementById("authEmail").value.trim(); const p = document.getElementById("authPassword").value.trim();
+            if(!e || !p) return showToast("Credentials required.", "error");
+            
+            let name, discord, region;
+            if(!isLoginMode) {
+                name = document.getElementById("regName").value.trim(); discord = document.getElementById("regDiscord").value.trim() || "Not provided"; region = document.getElementById("regRegion").value;
+                if(!name || !region) return showToast("IGN and Region are mandatory.", "error");
+            }
+
+            authBtn.innerText = "Processing..."; authBtn.disabled = true;
+            try {
+                if(isLoginMode) {
+                    await signInWithEmailAndPassword(auth, e, p);
+                    showToast("Access Granted", "success"); window.showSection('profileSection');
+                } else {
+                    const userCredential = await createUserWithEmailAndPassword(auth, e, p);
+                    try {
+                        const newReqRef = push(ref(db, 'requests'));
+                        await set(newReqRef, { name: name, discord: discord, region: region, email: userCredential.user.email, timestamp: Date.now(), uid: userCredential.user.uid });
+                        showToast("Account Created & Applied.", "success");
+                    } catch(dbErr) { showToast("Account created, but request failed.", "warning"); }
+                    
+                    document.getElementById("regName").value = ""; document.getElementById("regDiscord").value = ""; document.getElementById("regRegionDisplay").innerText = "Select Region"; document.getElementById("regRegion").value = "";
+                    window.showSection('leaderboard');
+                }
+                document.getElementById("authEmail").value = ""; document.getElementById("authPassword").value = "";
+            } catch (err) { let errorMsg = err?.message ? err.message.replace("Firebase: ", "") : "An error occurred."; showToast(errorMsg, "error"); } finally { authBtn.innerText = isLoginMode ? "Authenticate" : "Apply to Council"; authBtn.disabled = false; }
+        };
+
+        window.openLogoutModal = () => document.getElementById("logoutModal").classList.add("active");
+        window.closeLogoutModal = () => document.getElementById("logoutModal").classList.remove("active");
+
+        window.executeLogout = async () => {
+            closeLogoutModal();
+            await signOut(auth);
+            showToast("Disconnected", "warning");
+            window.showSection('leaderboard');
+        };
+
+        window.handleNavRegClick = (btn) => {
+            if (currentUserEmail) {
+                openLogoutModal();
+            } else {
+                showSection('authSection', btn);
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            const btnProfile = document.getElementById("navProfileBtn");
+            const btnReg = document.getElementById("navRegBtn");
+            const logoutAlt = document.getElementById("logoutBtnAlt");
+            
+            if (user) { 
+                currentUserEmail = user.email;
+                btnProfile.style.display = "inline-flex";
+                
+                let username = user.email.split('@')[0];
+                btnReg.innerHTML = `${username} <i class="fa-solid fa-right-from-bracket" style="margin-left: 6px;"></i>`;
+                btnReg.style.textTransform = "lowercase";
+                btnReg.classList.add("nav-logout");
+                btnReg.classList.remove("active");
+
+                logoutAlt.classList.remove("hidden");
+                renderProfile();
+            } else { 
+                currentUserEmail = null;
+                btnProfile.style.display = "none";
+                btnReg.innerHTML = "Login";
+                btnReg.style.textTransform = "uppercase";
+                btnReg.classList.remove("nav-logout");
+                logoutAlt.classList.add("hidden");
+            }
+        });
+
+        function formatTime(ms) { const d = new Date(ms); return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }); }
+
+        onValue(ref(db, 'players'), (snapshot) => {
+            window.playerDatabase = [];
+            snapshot.forEach((child) => {
+                window.playerDatabase.push({ id: child.key, ...child.val() });
+            });
+            window.playerDatabase.sort((a, b) => (b.pi || 0) - (a.pi || 0)); 
+            window.renderLeaderboard();
+            if(currentUserEmail && document.getElementById('profileSection').classList.contains('active')) {
+                renderProfile();
+            }
+        });
+
+        window.renderLeaderboard = () => {
+            const grid = document.getElementById("playerGrid");
+            const searchQ = document.getElementById("searchInput").value.toLowerCase();
+            
+            const tagsContainer = document.getElementById("activeFiltersTags");
+            const filterBar = document.getElementById("activeFiltersContainer");
+            let hasFilters = activeFilters.Region.length > 0 || activeFilters.Role.length > 0 || activeFilters.Tier.length > 0;
+            
+            if(hasFilters) {
+                filterBar.classList.remove("hidden");
+                let tagsHTML = "";
+                ['Region', 'Role', 'Tier'].forEach(cat => {
+                    activeFilters[cat].forEach(val => {
+                        tagsHTML += `<div class="active-filter-tag">${val} <i class="fa-solid fa-xmark" onclick="removeSpecificFilter('${cat}', '${val}')"></i></div>`;
+                    });
+                });
+                tagsContainer.innerHTML = tagsHTML;
+            } else {
+                filterBar.classList.add("hidden");
+            }
+
+            let filteredPlayers = window.playerDatabase.filter(p => {
+                const pName = p.name ? p.name.toLowerCase() : "";
+                const matchName = pName.includes(searchQ);
+                
+                const matchRegion = activeFilters.Region.length === 0 || (p.region && activeFilters.Region.includes(p.region));
+                const pRoleUpper = p.role ? p.role.toUpperCase() : "HYBRID";
+                const matchRole = activeFilters.Role.length === 0 || activeFilters.Role.some(r => r.toUpperCase() === pRoleUpper) || (pRoleUpper === 'DEV' || pRoleUpper === 'ADMIN');
+                const pTitle = p.title || "";
+                const matchTier = activeFilters.Tier.length === 0 || activeFilters.Tier.some(t => pTitle.includes(t));
+
+                return matchName && matchRegion && matchRole && matchTier;
+            });
+
+            if(filteredPlayers.length === 0) { grid.innerHTML = "<div class='empty-state'>No matching players found.</div>"; return; }
+
+            let htmlBuild = "";
+            filteredPlayers.forEach((p, index) => {
+                const apiScore = p.pi || 4; const titleText = p.title || "Axiom—Low Tier"; const region = p.region || "Unknown"; const safeName = p.name || "Unknown Player";
+                
+                let themeClass = ""; let rankHtml = "";
+                const isNoFilter = !hasFilters && searchQ === "";
+                
+                if(index === 0 && isNoFilter) { themeClass = "premium-card card-rank-1"; rankHtml = `<div class="rank-badge">#1</div>`; }
+                else if(index === 1 && isNoFilter) { themeClass = "premium-card card-rank-2"; rankHtml = `<div class="rank-badge">#2</div>`; }
+                else if(index === 2 && isNoFilter) { themeClass = "premium-card card-rank-3"; rankHtml = `<div class="rank-badge">#3</div>`; }
+                
+                let delay = Math.min(index * 0.03, 0.4);
+                let roleHtml = getRoleBadge(p.email === 'rep6se@gmail.com' ? 'DEV' : p.role);
+                let tClass = getTitleBadgeClass(titleText);
+
+                htmlBuild += `
+                    <div class="player-card ${themeClass}" style="animation-delay: ${delay}s" onclick="openModal('${p.id}')">
+                        ${rankHtml}
+                        <div class="card-top">
+                            <div>
+                                <h2 class="ign font-display">${safeName}</h2>
+                                <div class="badges">
+                                    <span class="title-badge ${tClass}">${titleText}</span>
+                                    ${roleHtml}
+                                    <span class="region-badge"><i class="fa-solid fa-earth-americas"></i> ${region}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="api-box">
+                            <span class="api-label">ΛPI Core</span>
+                            <div class="api-score font-display">${apiScore}</div>
+                        </div>
+                    </div>`;
+            });
+            grid.innerHTML = htmlBuild;
+        };
+
+        window.openModal = (playerId) => {
+            const p = window.playerDatabase.find(x => x.id === playerId);
+            if(!p) return;
+            
+            currentPlayerToCompare = playerId; 
+
+            const modalNameObj = document.getElementById("modalName");
+            modalNameObj.innerText = p.name || "Unknown";
+            document.getElementById("modalApi").innerText = p.pi || 4;
+            
+            let roleHtml = getRoleBadge(p.email === 'rep6se@gmail.com' ? 'DEV' : p.role);
+            let tClass = getTitleBadgeClass(p.title);
+            document.getElementById("modalBadges").innerHTML = `<span class="title-badge ${tClass}">${p.title || 'Axiom—Low Tier'}</span>${roleHtml}<span class="region-badge"><i class="fa-solid fa-earth-americas"></i> ${p.region || 'Unknown'}</span>`;
+
+            const stats = [
+                { label: "Pure Skill", pts: p.psPts || 0, val: p.ps || 1, img: "ps.png" }, 
+                { label: "Intellect", pts: p.iPts || 0, val: p.i || 1, img: "i.png" },
+                { label: "Offense", pts: p.oPts || 0, val: p.o || 1, img: "o.png" }, 
+                { label: "Defense", pts: p.dPts || 0, val: p.d || 1, img: "d.png" },
+                { label: "Goalkeeping", pts: p.gkPts || 0, val: p.gk || 1, img: "gk.png" }
+            ];
+
+            let statsHtml = "";
+            stats.forEach(st => {
+                let percentage = Math.min(100, Math.max(0, (st.pts / 200) * 100)); let tierDisplay = `Λ${8 - st.val}`; 
+                statsHtml += `
+                <div class="stat-bar-container">
+                    <div class="stat-bar-header">
+                        <span><img src="${st.img}" class="stat-icon" onerror="this.outerHTML=''"> ${st.label}</span>
+                        <div><span class="val">${tierDisplay}</span><span class="pts">(${st.pts} pts)</span></div>
+                    </div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%" data-target="${percentage}%"></div></div>
+                </div>`;
+            });
+            document.getElementById("modalStatsBars").innerHTML = statsHtml;
+            
+            const histContainer = document.getElementById("modalHistory");
+            const histTitle = document.getElementById("historyTitleText");
+            histContainer.innerHTML = `<div class="empty-state" style="padding:15px;">Fetching records...</div>`;
+            histTitle.innerText = "Match Performance Records";
+
+            get(ref(db, `history/${playerId}`)).then((snap) => {
+                if(!snap.exists()) { 
+                    histContainer.innerHTML = `<div class="empty-state" style="padding:15px;">No match records found.</div>`; 
+                    return; 
+                }
+                
+                let rawData = snap.val();
+                let records = [];
+                
+                if (rawData.action && rawData.amount !== undefined) {
+                    records = [rawData];
+                } else {
+                    records = Object.values(rawData);
+                }
+                
+                records.sort((a,b) => b.timestamp - a.timestamp);
+                
+                histTitle.innerText = `Match Performance Records (${records.length})`;
+                
+                let hHtml = "";
+                records.forEach(r => {
+                    if(r.amount === undefined || !r.action) return;
+                    let typeClass = r.amount > 0 ? 'positive' : 'negative';
+                    let amtStr = r.amount > 0 ? `+${r.amount}` : `${r.amount}`;
+                    let amtColor = r.amount > 0 ? 'var(--success)' : 'var(--danger)';
+                    
+                    hHtml += `
+                    <div class="history-item ${typeClass}">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <span class="history-item-desc">${r.action}</span>
+                            <span class="history-item-time">${formatTime(r.timestamp)}</span>
+                        </div>
+                        <div style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: ${amtColor}; text-shadow: 0 0 10px rgba(0,0,0,0.2);">
+                            ${amtStr}
+                        </div>
+                    </div>`;
+                });
+                
+                histContainer.innerHTML = hHtml || `<div class="empty-state" style="padding:15px;">No match records found.</div>`;
+            });
+
+            document.getElementById("playerModal").classList.add("active");
+            setTimeout(() => { document.querySelectorAll(".stat-bar-fill").forEach(bar => { bar.style.width = bar.getAttribute("data-target"); }); }, 100);
+        };
+
+        window.closeModal = () => { document.getElementById("playerModal").classList.remove("active"); setTimeout(() => { document.querySelectorAll(".stat-bar-fill").forEach(bar => bar.style.width = "0%"); }, 300); };
+
+        window.initCompare = () => {
+            closeModal();
+            document.getElementById("compareSearchModal").classList.add("active");
+            document.getElementById("compareSearchInput").value = "";
+            renderCompareList();
+        };
+        window.closeCompareSearchModal = () => document.getElementById("compareSearchModal").classList.remove("active");
+
+        window.renderCompareList = () => {
+            const search = document.getElementById("compareSearchInput").value.toLowerCase();
+            const list = document.getElementById("compareList");
+            let filtered = window.playerDatabase.filter(p => p.id !== currentPlayerToCompare && p.name.toLowerCase().includes(search));
+            
+            if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">No opponents found.</div>'; return; }
+            
+            let html = "";
+            filtered.forEach(p => {
+                html += `<div class="list-item" onclick="executeCompare('${p.id}')">
+                    <i class="fa-solid fa-user-ninja" style="color:var(--accent); width:20px; text-align:center;"></i><span>${p.name}</span>
+                </div>`;
+            });
+            list.innerHTML = html;
+        };
+
+        window.executeCompare = (p2Id) => {
+            closeCompareSearchModal();
+            const p1 = window.playerDatabase.find(x => x.id === currentPlayerToCompare);
+            const p2 = window.playerDatabase.find(x => x.id === p2Id);
+            if(!p1 || !p2) return;
+
+            const getWinClass = (v1, v2) => {
+                if(v1 > v2) return 'val-win';
+                if(v1 < v2) return 'val-lose';
+                return 'val-tie';
+            };
+
+            let headerHtml = `
+                <div class="compare-arena">
+                    <div class="compare-card" style="border-color: var(--accent); box-shadow: 0 0 20px rgba(255,140,0,0.1);">
+                        <div style="font-size:0.65rem; color:var(--text-tertiary); text-transform:uppercase; font-weight:700; letter-spacing:1px; margin-bottom:8px;">Challenger</div>
+                        <div class="compare-player-name">${p1.name}</div>
+                        <div class="compare-player-api" style="color:var(--accent);">${p1.pi||4}</div>
+                    </div>
+                    <div class="compare-vs">VS</div>
+                    <div class="compare-card" style="border-color: var(--info); box-shadow: 0 0 20px rgba(59,130,246,0.1);">
+                        <div style="font-size:0.65rem; color:var(--text-tertiary); text-transform:uppercase; font-weight:700; letter-spacing:1px; margin-bottom:8px;">Opponent</div>
+                        <div class="compare-player-name">${p2.name}</div>
+                        <div class="compare-player-api" style="color:var(--info);">${p2.pi||4}</div>
+                    </div>
+                </div>
+            `;
+
+            const makeRow = (label, img, val1, val2) => {
+                let c1 = getWinClass(val1, val2);
+                let c2 = getWinClass(val2, val1);
+                return `
+                <div class="compare-stat-row">
+                    <div class="compare-stat-val ${c1}">${val1}</div>
+                    <div class="compare-stat-label">
+                        <img src="${img}" class="compare-stat-icon" onerror="this.outerHTML='<i class=\\'fa-solid fa-chart-simple\\'></i>'">
+                        ${label}
+                    </div>
+                    <div class="compare-stat-val ${c2}">${val2}</div>
+                </div>`;
+            };
+
+            let statsHtml = `
+                <div style="margin-top: 15px;">
+                    ${makeRow('Pure Skill', 'ps.png', p1.psPts||0, p2.psPts||0)}
+                    ${makeRow('Intellect', 'i.png', p1.iPts||0, p2.iPts||0)}
+                    ${makeRow('Offense', 'o.png', p1.oPts||0, p2.oPts||0)}
+                    ${makeRow('Defense', 'd.png', p1.dPts||0, p2.dPts||0)}
+                    ${makeRow('Goalkeeping', 'gk.png', p1.gkPts||0, p2.gkPts||0)}
+                </div>
+            `;
+
+            document.getElementById("compareContent").innerHTML = headerHtml + statsHtml;
+            document.getElementById("comparisonModal").classList.add("active");
+        };
+        
+        window.closeComparisonModal = () => document.getElementById("comparisonModal").classList.remove("active");
+
+        window.renderProfile = () => {
+            if(!currentUserEmail) return;
+            const content = document.getElementById("profileContent");
+            
+            const playerIndex = window.playerDatabase.findIndex(p => p.email === currentUserEmail);
+            if(playerIndex === -1) {
+                content.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left" style="font-size:2.5rem; color:var(--accent); margin-bottom:15px; display:block;"></i> Your entity is either pending Council approval. Please check back later.</div>`;
+                return;
+            }
+
+            const p = window.playerDatabase[playerIndex];
+            const rank = playerIndex + 1;
+
+            let roleHtml = getRoleBadge(p.email === 'rep6se@gmail.com' ? 'DEV' : p.role);
+            let tClass = getTitleBadgeClass(p.title);
+
+            const renderProfileStat = (label, val, pts) => {
+                let pct = Math.min(100, Math.max(0, (pts/200)*100));
+                return `<div class="profile-stat-bar-container"><div class="profile-stat-header"><span class="profile-stat-label">${label} <span class="profile-stat-tier">(Λ${8-val})</span></span><span class="profile-stat-val">${pts}</span></div><div class="profile-stat-bg"><div class="profile-stat-fill" style="width: 0%" data-target="${pct}%"></div></div></div>`;
+            };
+
+            let html = `
+                <div class="profile-header">
+                    <div class="profile-info">
+                        <h2 class="font-display" style="font-size: 2.8rem; line-height: 1; margin-bottom: 12px; color: var(--text-primary);">${p.name}</h2>
+                        <div class="badges">
+                            <span class="title-badge ${tClass}">${p.title || 'Axiom—Low Tier'}</span>
+                            ${roleHtml}
+                            <span class="region-badge"><i class="fa-solid fa-earth-americas"></i> ${p.region || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div class="profile-rank-box">
+                        <span class="rank-label">Global Rank</span>
+                        <div class="global-rank">#${rank}</div>
+                    </div>
+                </div>
+                
+                <div class="profile-stats-grid">
+                    <div class="profile-stats-card" style="justify-content: center; align-items: center; text-align: center;">
+                        <span style="color:var(--text-secondary); font-size:1rem; text-transform:uppercase; font-weight:800; letter-spacing:2px; display:block;">Axiom Power Index</span>
+                        <h3 class="font-display" style="font-size: 6rem; line-height: 1; color:var(--text-primary); margin-top:10px; text-shadow: 0 0 30px var(--accent-glow);">${p.pi || 4}</h3>
+                    </div>
+                    <div class="profile-stats-card" style="justify-content: center;">
+                        ${renderProfileStat('Pure Skill', p.ps||1, p.psPts||0)}
+                        ${renderProfileStat('Intellect', p.i||1, p.iPts||0)}
+                        ${renderProfileStat('Offense', p.o||1, p.oPts||0)}
+                        ${renderProfileStat('Defense', p.d||1, p.dPts||0)}
+                        ${renderProfileStat('Goalkeeping', p.gk||1, p.gkPts||0)}
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+
+            setTimeout(() => {
+                document.querySelectorAll('#profileContent .profile-stat-fill').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-target');
+                });
+            }, 100);
+        };
+
+        onValue(ref(db, 'system/rulebook'), (snapshot) => {
+            const rules = snapshot.val();
+            let parsed = rules ? rules.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>').replace(/\n/gim, '<br>') : "<div class='empty-state'>No protocols established in the system yet.</div>";
+            document.getElementById("rulebookContent").innerHTML = parsed;
+        });
+    </script>
+</body>
+</html>
