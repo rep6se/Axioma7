@@ -1119,7 +1119,7 @@
 				<h2 class="font-display" style="color: var(--accent); margin-bottom: 5px; font-size: 1.2rem;">Soft Reset Rule</h2>
 				<ul style="color: var(--text-secondary); margin-left: 20px; font-size: 0.85rem; line-height: 1.6;">
 					<li>Applies to ALL registered entities.</li>
-					<li>Subtracts exactly <strong>20 points</strong> from every skill.</li>
+					<li>Subtracts exactly <strong>50 points</strong> from every skill.</li>
 					<li>Minimum point threshold is <strong>0</strong>.</li>
 					<li>Automatic recalculation post-reset.</li>
 				</ul>
@@ -1188,7 +1188,7 @@
 				</div>
 				<div class="guide-box">
 					<h3>Season Reset</h3>
-					<p>Used only at the end of a season. It performs a 'Soft Reset', deducting 20 raw points from every stat of every player, mimicking skill degradation.</p>
+					<p>Used only at the end of a season. It performs a 'Soft Reset', deducting 50 raw points from every stat of every player, mimicking skill degradation.</p>
 				</div>
 				<div class="guide-box">
 					<h3>Rulebook</h3>
@@ -1913,16 +1913,16 @@
 		};
 
 		window.initiateSoftReset = () => {
-			showConfirm("Soft Reset", "This command will deduct 20 points from ALL registered entities. Reversal is impossible.", async () => {
+			showConfirm("Soft Reset", "This command will deduct 50 points from ALL registered entities. Reversal is impossible.", async () => {
 				for (const p of playerDatabase) {
-					let nPs = Math.max(0, (p.psPts || 0) - 20);
-					let nI = Math.max(0, (p.iPts || 0) - 20);
-					let nO = Math.max(0, (p.oPts || 0) - 20);
-					let nD = Math.max(0, (p.dPts || 0) - 20);
-					let nGk = Math.max(0, (p.gkPts || 0) - 20);
+					let nPs = Math.max(0, (p.psPts || 0) - 50);
+					let nI = Math.max(0, (p.iPts || 0) - 50);
+					let nO = Math.max(0, (p.oPts || 0) - 50);
+					let nD = Math.max(0, (p.dPts || 0) - 50);
+					let nGk = Math.max(0, (p.gkPts || 0) - 50);
 					await updatePlayerData(p.uid, nPs, nI, nO, nD, nGk);
 				}
-				logAdminActivity("SOFT RESET", "Executed global soft reset (-20 points across all stats).");
+				logAdminActivity("SOFT RESET", "Executed global soft reset (-50 points across all stats).");
 				showToast("Global Soft Reset Executed.", "warning");
 			});
 		};
